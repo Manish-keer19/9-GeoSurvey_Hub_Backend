@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for District type
+enum DistrictType {
+  RURAL
+  URBAN
+}
+  
+
+
+model District {
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  type         DistrictType // RURAL or URBAN
+  serialNo     Int?         // Optional serial number for grouping (e.g., 1, 2, etc.)
+  blocks       Block[]   
+}
+
+model Block {
+  id                Int     @id @default(autoincrement())
+  name              String  // Block name, e.g., "PUSOUR", "Ambikapur"
+  totalData         Int     // कुल डाटा
+  blockPercentage   Float   // जिले में से ब्लॉक के डाटा का प्रतिशत
+  surveyData        Int     // सर्वेक्षण के लिए लिया गया डाटा (ब्लॉक वाइज़)
+  surveyPercentage  Float   // सर्वेक्षण के लिए लिए गए डाटा का प्रतिशत (ब्लॉक वाइज़)
+  districtId        Int
+  district          District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+
+  @@unique([name, districtId]) // Ensure unique block per district
+}

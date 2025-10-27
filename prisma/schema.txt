@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventType {
+  Dhrana
+  Meeting
+  Band
+  Raily
+  Sabha
+  Gayapan
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Level {
+  JILA
+  BLOCK
+}
+
+model User {
+  id              Int                @id @default(autoincrement())
+  code            String              @unique @db.VarChar(255)
+  name            String
+  designation     String
+  level           Level               // e.g., 'jila', 'block'
+  role            Role                @default(USER)
+  lastVisit       DateTime?
+  monthlyCount    Int                 @default(0)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relations
+  eventsAssigned  EventAssignment[]   // Multiple via junction
+  createdEvents   Event[]             @relation("CreatedBy")
+  views           EventView[]
+  updates         EventUpdate[]
+
+  @@map("users")
+}
+
+model Event {
+  id              Int                @id @default(autoincrement())
+  name            String
+  description     String?
+  startDateTime   DateTime
+  endDateTime     DateTime
+  issueDate       DateTime?
+  location        String?
+  eventType       EventType
+  isPrevious      Boolean            @default(false)
+  // Removed: assignedToId Int (for multiple support)
+  createdById     Int?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  People_Attend   Int                 @default(0)
+  level           Level               @default(BLOCK)
+
+  // Relations
+  // Removed: assignedTo User @relation("AssignedTo"...)
+  assignments     EventAssignment[]   // Multiple assignments via junction
+  createdBy       User?               @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  views           EventView[]
+  updates         EventUpdate[]
+  medias          Media[]
+
+  @@map("events")
+}
+
+model EventAssignment {
+  id           Int      @id @default(autoincrement())
+  eventId      Int
+  userId       Int
+  assignedAt   DateTime @default(now())
+
+  // Relations
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("event_assignments")
+}
+
+model EventView {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  userId    Int
+  viewedAt  DateTime @default(now())
+
+  // Relations
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("event_views")
+}
+
+model EventUpdate {
+  id                  Int      @id @default(autoincrement())
+  eventId             Int
+  userId              Int
+  updatedAt           DateTime @default(now())
+  personsAttended     Int?
+  updatedStartDateTime DateTime?
+  updatedEndDateTime  DateTime?
+  updatedLocation     String?
+
+  // Relations
+  event               Event      @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user                User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  medias              Media[]
+
+  @@unique([eventId, userId])
+  @@map("event_updates")
+}
+
+model Media {
+  id        Int         @id @default(autoincrement())
+  eventId   Int
+  updateId  Int?
+  type      MediaType
+  url       String
+  size      Int?        // In bytes, e.g., for video size check
+  orderNum  Int?        // For ordering multiple photos
+  createdAt DateTime    @default(now())
+
+  // Relations
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  update    EventUpdate? @relation(fields: [updateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("medias")
+}
