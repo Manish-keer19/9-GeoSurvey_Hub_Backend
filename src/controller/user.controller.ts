@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
-import prisma from '../prisma';
-import { DistrictType } from '@prisma/client';
+import prisma from '../prisma.js';
+
+// District type enum
+enum DistrictType {
+  RURAL = 'RURAL',
+  URBAN = 'URBAN'
+}
+
 
 // Updated BlockInput – now uses districtId instead of districtName/serialNo
 interface BlockInput {
@@ -15,7 +21,7 @@ interface BlockInput {
 // DistrictInput
 interface DistrictInput {
   name: string;
-  type: DistrictType;
+  type: any;
   serialNo?: number | null;
 }
 
