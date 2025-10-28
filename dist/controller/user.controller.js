@@ -98,7 +98,7 @@ export const getDistrict = async (req, res) => {
         }
         const district = await prisma.district.findUnique({
             where: { id: parseInt(id) },
-            include: { blocks: true }, // Optional: include related blocks
+            include: { block_vd: true }, // Optional: include related blocks
         });
         if (!district) {
             return res.status(404).json({ error: 'District not found' });
