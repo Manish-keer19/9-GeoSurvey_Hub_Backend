@@ -1,0 +1,7 @@
+cd "C:\Users\manish keer\Documents\dumps\Dump20251029"
+
+mysql -h ballast.proxy.rlwy.net -u root -pCACzetHjYPXjZWvXFqHdwoxMSsvZKqNX --port=51968 --protocol=TCP railway < vandanyojanadb11_district.sql
+
+mysql -h ballast.proxy.rlwy.net -u root -pCACzetHjYPXjZWvXFqHdwoxMSsvZKqNX --port=51968 --protocol=TCP railway < vandanyojanadb11_block_vd.sql
+
+mysql -h ballast.proxy.rlwy.net -u root -pCACzetHjYPXjZWvXFqHdwoxMSsvZKqNX --port=51968 --protocol=TCP railway < vandanyojanadb11_districtblockmap.sql

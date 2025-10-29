@@ -8,110 +8,115 @@ datasource db {
 }
 
 model block_vd {
-  id         Int      @id @default(autoincrement())
-  block_name String
-  block_id   Int
-  districtId Int
-  c1         Float?
-  c2         Float?
-  c3         Float?
-  c4         Float?
-  c5         Float?
-  c6         Float?
-  c7         Float?
-  c8         Float?
-  c9         Float?
-  c10        Float?
-  c11        Float?
-  c12        Float?
-  c13        Float?
-  c14        Float?
-  c15        Float?
-  c16        Float?
-  c17        Float?
-  c18        Float?
-  c19        Float?
-  c20        Float?
-  c21        Float?
-  c22        Float?
-  c23        Float?
-  c24        Float?
-  c25        Float?
-  c26        Float?
-  c27        Float?
-  c28        Float?
-  c29        Float?
-  c30        Float?
-  c31        Float?
-  c32        Float?
-  c33        Float?
-  c34        Float?
-  c35        Float?
-  c36        Float?
-  c37        Float?
-  c38        Float?
-  c39        Float?
-  c40        Float?
-  c41        Float?
-  c42        Float?
-  c43        Float?
-  c44        Float?
-  c45        Float?
-  c46        Float?
-  c47        Float?
-  c48        Float?
-  c49        Float?
-  c50        Float?
-  c51        Float?
-  c52        Float?
-  c53        Float?
-  c54        Float?
-  c55        Float?
-  c56        Float?
-  c57        Float?
-  c58        Float?
-  c59        Float?
-  c60        Float?
-  c61        Float?
-  c62        Float?
-  c63        Float?
-  c64        Float?
-  c65        Float?
-  c66        Float?
-  c67        Float?
-  c68        Float?
-  c69        Float?
-  c70        Float?
-  c71        Float?
-  c72        Float?
-  c73        Float?
-  c74        Float?
-  c75        Float?
-  c76        Float?
-  c77        Float?
-  c78        Float?
-  c79        Float?
-  c80        Float?
-  c81        Float?
-  c82        Float?
-  c83        Float?
-  c84        Float?
-  district   district @relation(fields: [districtId], references: [id], onDelete: Cascade, map: "Block_vd_districtId_fkey")
-
-  @@index([districtId], map: "Block_vd_districtId_fkey")
+  bolck_Id         Int                 @id
+  Block_Type       block_vd_Block_Type
+  block_name       String
+  c1               Float?
+  c2               Float?
+  c3               Float?
+  c4               Float?
+  c5               Float?
+  c6               Float?
+  c7               Float?
+  c8               Float?
+  c9               Float?
+  c10              Float?
+  c11              Float?
+  c12              Float?
+  c13              Float?
+  c14              Float?
+  c15              Float?
+  c16              Float?
+  c17              Float?
+  c18              Float?
+  c19              Float?
+  c20              Float?
+  c21              Float?
+  c22              Float?
+  c23              Float?
+  c24              Float?
+  c25              Float?
+  c26              Float?
+  c27              Float?
+  c28              Float?
+  c29              Float?
+  c30              Float?
+  c31              Float?
+  c32              Float?
+  c33              Float?
+  c34              Float?
+  c35              Float?
+  c36              Float?
+  c37              Float?
+  c38              Float?
+  c39              Float?
+  c40              Float?
+  c41              Float?
+  c42              Float?
+  c43              Float?
+  c44              Float?
+  c45              Float?
+  c46              Float?
+  c47              Float?
+  c48              Float?
+  c49              Float?
+  c50              Float?
+  c51              Float?
+  c52              Float?
+  c53              Float?
+  c54              Float?
+  c55              Float?
+  c56              Float?
+  c57              Float?
+  c58              Float?
+  c59              Float?
+  c60              Float?
+  c61              Float?
+  c62              Float?
+  c63              Float?
+  c64              Float?
+  c65              Float?
+  c66              Float?
+  c67              Float?
+  c68              Float?
+  c69              Float?
+  c70              Float?
+  c71              Float?
+  c72              Float?
+  c73              Float?
+  c74              Float?
+  c75              Float?
+  c76              Float?
+  c77              Float?
+  c78              Float?
+  c79              Float?
+  c80              Float?
+  c81              Float?
+  c82              Float?
+  c83              Float?
+  c84              Float?
+  districtblockmap districtblockmap[]
 }
 
 model district {
-  id       Int           @id
-  name     String
-  type     district_type
-  serialNo Int?
-  block_vd block_vd[]
-
-  @@unique([name, type], map: "District_name_type_key")
+  district_id      Int                @id
+  district_name    String
+  districtblockmap districtblockmap[]
 }
 
-enum district_type {
-  RURAL
-  URBAN
+model districtblockmap {
+  id         Int      @id @default(autoincrement())
+  districtId Int
+  blockId    Int
+  block_vd   block_vd @relation(fields: [blockId], references: [bolck_Id], onDelete: Cascade, map: "DistrictBlockMap_blockId_fkey")
+  district   district @relation(fields: [districtId], references: [district_id], onDelete: Cascade, map: "DistrictBlockMap_districtId_fkey")
+
+  @@unique([districtId, blockId], map: "Unique_District_Block")
+  @@index([blockId], map: "DistrictBlockMap_blockId_idx")
+  @@index([districtId], map: "DistrictBlockMap_districtId_idx")
+}
+
+enum block_vd_Block_Type {
+  R
+  U
 }

@@ -7,139 +7,119 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum EventType {
-  Dhrana
-  Meeting
-  Band
-  Raily
-  Sabha
-  Gayapan
+model District {
+  district_id             Int              @id 
+  district_name  String
+  districtBlocks DistrictBlockMap[]
 }
 
-enum MediaType {
-  PHOTO
-  VIDEO
+model Block_vd {
+  bolck_Id           Int               @id 
+  Block_Type      DistrictType
+  block_name   String
+  c1           Float?
+  c2           Float?
+  c3           Float?
+  c4           Float?
+  c5           Float?
+  c6           Float?
+  c7           Float?
+  c8           Float?
+  c9           Float?
+  c10          Float?
+  c11          Float?
+  c12          Float?
+  c13          Float?
+  c14          Float?
+  c15          Float?
+  c16          Float?
+  c17          Float?
+  c18          Float?
+  c19          Float?
+  c20          Float?
+  c21          Float?
+  c22          Float?
+  c23          Float?
+  c24          Float?
+  c25          Float?
+  c26          Float?
+  c27          Float?
+  c28          Float?
+  c29          Float?
+  c30          Float?
+  c31          Float?
+  c32          Float?
+  c33          Float?
+  c34          Float?
+  c35          Float?
+  c36          Float?
+  c37          Float?
+  c38          Float?
+  c39          Float?
+  c40          Float?
+  c41          Float?
+  c42          Float?
+  c43          Float?
+  c44          Float?
+  c45          Float?
+  c46          Float?
+  c47          Float?
+  c48          Float?
+  c49          Float?
+  c50          Float?
+  c51          Float?
+  c52          Float?
+  c53          Float?
+  c54          Float?
+  c55          Float?
+  c56          Float?
+  c57          Float?
+  c58          Float?
+  c59          Float?
+  c60          Float?
+  c61          Float?
+  c62          Float?
+  c63          Float?
+  c64          Float?
+  c65          Float?
+  c66          Float?
+  c67          Float?
+  c68          Float?
+  c69          Float?
+  c70          Float?
+  c71          Float?
+  c72          Float?
+  c73          Float?
+  c74          Float?
+  c75          Float?
+  c76          Float?
+  c77          Float?
+  c78          Float?
+  c79          Float?
+  c80          Float?
+  c81          Float?
+  c82          Float?
+  c83          Float?
+  c84          Float?
+
+  districtLinks DistrictBlockMap[]
 }
 
-enum Role {
-  USER
-  ADMIN
+model DistrictBlockMap {
+  id          Int       @id @default(autoincrement())
+  districtId  Int
+  blockId     Int
+
+  district    District  @relation(fields: [districtId], references: [district_id], onDelete: Cascade)
+  block       Block_vd  @relation(fields: [blockId], references: [bolck_Id], onDelete: Cascade)
+
+  @@unique([districtId, blockId], map: "Unique_District_Block")
+  @@index([districtId])
+  @@index([blockId])   
 }
 
-enum Level {
-  JILA
-  BLOCK
+enum DistrictType {
+  R
+  U
 }
 
-model User {
-  id              Int                @id @default(autoincrement())
-  code            String              @unique @db.VarChar(255)
-  name            String
-  designation     String
-  level           Level               // e.g., 'jila', 'block'
-  role            Role                @default(USER)
-  lastVisit       DateTime?
-  monthlyCount    Int                 @default(0)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-
-  // Relations
-  eventsAssigned  EventAssignment[]   // Multiple via junction
-  createdEvents   Event[]             @relation("CreatedBy")
-  views           EventView[]
-  updates         EventUpdate[]
-
-  @@map("users")
-}
-
-model Event {
-  id              Int                @id @default(autoincrement())
-  name            String
-  description     String?
-  startDateTime   DateTime
-  endDateTime     DateTime
-  issueDate       DateTime?
-  location        String?
-  eventType       EventType
-  isPrevious      Boolean            @default(false)
-  // Removed: assignedToId Int (for multiple support)
-  createdById     Int?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  People_Attend   Int                 @default(0)
-  level           Level               @default(BLOCK)
-
-  // Relations
-  // Removed: assignedTo User @relation("AssignedTo"...)
-  assignments     EventAssignment[]   // Multiple assignments via junction
-  createdBy       User?               @relation("CreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  views           EventView[]
-  updates         EventUpdate[]
-  medias          Media[]
-
-  @@map("events")
-}
-
-model EventAssignment {
-  id           Int      @id @default(autoincrement())
-  eventId      Int
-  userId       Int
-  assignedAt   DateTime @default(now())
-
-  // Relations
-  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([eventId, userId])
-  @@map("event_assignments")
-}
-
-model EventView {
-  id        Int      @id @default(autoincrement())
-  eventId   Int
-  userId    Int
-  viewedAt  DateTime @default(now())
-
-  // Relations
-  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([eventId, userId])
-  @@map("event_views")
-}
-
-model EventUpdate {
-  id                  Int      @id @default(autoincrement())
-  eventId             Int
-  userId              Int
-  updatedAt           DateTime @default(now())
-  personsAttended     Int?
-  updatedStartDateTime DateTime?
-  updatedEndDateTime  DateTime?
-  updatedLocation     String?
-
-  // Relations
-  event               Event      @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user                User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  medias              Media[]
-
-  @@unique([eventId, userId])
-  @@map("event_updates")
-}
-
-model Media {
-  id        Int         @id @default(autoincrement())
-  eventId   Int
-  updateId  Int?
-  type      MediaType
-  url       String
-  size      Int?        // In bytes, e.g., for video size check
-  orderNum  Int?        // For ordering multiple photos
-  createdAt DateTime    @default(now())
-
-  // Relations
-  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  update    EventUpdate? @relation(fields: [updateId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@map("medias")
-}

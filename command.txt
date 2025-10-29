@@ -1,3 +1,4 @@
 npx prisma migrate dev --name init
 npx prisma generate
+npx prisma migrate reset
 npx prisma migrate dev --name add_event_assignment
