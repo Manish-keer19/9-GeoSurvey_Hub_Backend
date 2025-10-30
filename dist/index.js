@@ -3,6 +3,7 @@ import fileUpload from "express-fileupload";
 import cors from "cors";
 import prisma from "./prisma.js";
 import { discrictRoute } from "./router/discrict.route.js";
+// import updateBlocks from "./config/updateblocks.utils.js";
 const app = express();
 const PORT = 3000;
 app.use(express.json());
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 async function startServer() {
     try {
         await prisma.$connect(); // <-- Connect once
+        // await updateBlocks();
         console.log("✅ Prisma connected");
         app.listen(PORT, () => {
             console.log(`Server running at http://localhost:${PORT}`);

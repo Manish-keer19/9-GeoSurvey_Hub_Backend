@@ -8,6 +8,7 @@ import cors from "cors";
 
 import prisma from "./prisma.js";  
 import { discrictRoute } from "./router/discrict.route.js";
+// import updateBlocks from "./config/updateblocks.utils.js";
 
 const app = express();
 const PORT = 3000;
@@ -43,6 +44,8 @@ app.get("/", (req, res) => {
 async function startServer() {
   try {
     await prisma.$connect(); // <-- Connect once
+
+    // await updateBlocks();
     console.log("✅ Prisma connected");
 
     app.listen(PORT, () => {
