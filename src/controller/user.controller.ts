@@ -398,7 +398,7 @@ export const getDistrictMeta = async (req: Request, res: Response) => {
   try {
 
 
-    
+
     const districtId = Number(req.params.id);
     const district = await prisma.district.findUnique({
       where: { district_id: districtId },
