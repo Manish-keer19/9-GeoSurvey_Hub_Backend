@@ -3,6 +3,7 @@ import fileUpload from "express-fileupload";
 import cors from "cors";
 import prisma from "./prisma.js";
 import { discrictRoute } from "./router/discrict.route.js";
+import { authRoute } from "./router/auth.route.js";
 // import updateBlocks from "./config/updateblocks.utils.js";
 const app = express();
 const PORT = 3000;
@@ -19,6 +20,7 @@ const corsOptions = {
     credentials: true,
 };
 app.use(cors(corsOptions));
+app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/districts", discrictRoute);
 app.get("/", (req, res) => {
     res.send("Hello World!");

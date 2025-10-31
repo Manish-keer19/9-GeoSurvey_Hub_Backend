@@ -354,6 +354,8 @@ type BlockType = "R" | "U";
 /* ---------- 1. All Districts ---------- */
 export const getAllDistricts = async (_: Request, res: Response) => {
   try {
+
+
     const districts = await prisma.district.findMany({
       select: { district_id: true, district_name: true },
       orderBy: { district_name: "asc" },
@@ -394,6 +396,9 @@ export const getDistrictsByType = async (req: Request, res: Response) => {
 /* ---------- 3. District Meta (dropdown) ---------- */
 export const getDistrictMeta = async (req: Request, res: Response) => {
   try {
+
+
+    
     const districtId = Number(req.params.id);
     const district = await prisma.district.findUnique({
       where: { district_id: districtId },

@@ -8,6 +8,7 @@ import cors from "cors";
 
 import prisma from "./prisma.js";  
 import { discrictRoute } from "./router/discrict.route.js";
+import { authRoute } from "./router/auth.route.js";
 // import updateBlocks from "./config/updateblocks.utils.js";
 
 const app = express();
@@ -33,10 +34,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 
+app.use("/api/v1/auth",authRoute)
 app.use("/api/v1/districts",discrictRoute)
 
 
-app.get("/", (req, res) => {
+app.get("/", (req:any, res:any) => {
   res.send("Hello World!");
 });
 
@@ -47,7 +49,6 @@ async function startServer() {
 
     // await updateBlocks();
     console.log("✅ Prisma connected");
-
     app.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);
     });

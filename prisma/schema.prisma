@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+
+model User {
+  id              Int                @id @default(autoincrement())
+  code            String              @unique @db.VarChar(255)
+  name            String
+  role    Role   @default(DISTRICT_USER)
+}
+
+
+
+
+
 model block_vd {
   bolck_Id         Int                 @id
   Block_Type       block_vd_Block_Type
@@ -119,4 +133,10 @@ model districtblockmap {
 enum block_vd_Block_Type {
   R
   U
+}
+
+enum Role {
+  DISTRICT_USER       // can view district data
+  VIDHANSABHA_USER    // can view vidhansabha data
+  ADMIN          // can see all data
 }
