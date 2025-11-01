@@ -354,8 +354,6 @@ type BlockType = "R" | "U";
 /* ---------- 1. All Districts ---------- */
 export const getAllDistricts = async (_: Request, res: Response) => {
   try {
-
-
     const districts = await prisma.district.findMany({
       select: { district_id: true, district_name: true },
       orderBy: { district_name: "asc" },
@@ -396,9 +394,6 @@ export const getDistrictsByType = async (req: Request, res: Response) => {
 /* ---------- 3. District Meta (dropdown) ---------- */
 export const getDistrictMeta = async (req: Request, res: Response) => {
   try {
-
-
-
     const districtId = Number(req.params.id);
     const district = await prisma.district.findUnique({
       where: { district_id: districtId },
@@ -438,76 +433,6 @@ export const getBlockById = async (req: Request, res: Response) => {
   }
 };
 
-/* ---------- 5. District Report – RAW SQL (fastest) ---------- */
-export const getDistrictReport = async (req: Request, res: Response) => {
-  try {
-    const districtId = Number(req.params.id);
-    const { type = "ALL" } = req.query as { type?: "ALL" | "R" | "U" };
-    if (!["ALL", "R", "U"].includes(type))
-      return res.status(400).json({ success: false, message: "Invalid type" });
-
-    // Build column list
-    const sumCols = C_COLUMNS.filter(c => !AVG_FIELDS.has(c))
-      .map(c => `SUM(b.\`${c}\`) AS \`sum_${c}\``);
-    const avgCols = Array.from(AVG_FIELDS)
-      .map(c => `SUM(b.\`${c}\`) AS \`sum_${c}\`, COUNT(b.\`${c}\`) AS \`cnt_${c}\``);
-
-    const whereType = type === "ALL" ? "" : `AND b.\`Block_Type\` = '${type}'`;
-
-    const sql = `
-      SELECT
-        COUNT(b.\`bolck_Id\`) AS \`block_cnt\`,
-        ${[...sumCols, ...avgCols].join(',\n        ')}
-      FROM \`block_vd\` b
-      JOIN \`districtblockmap\` m ON b.\`bolck_Id\` = m.\`blockId\`
-      WHERE m.\`districtId\` = ?
-      ${whereType}
-    `;
-
-    // Use $queryRaw with ? placeholder (safe)
-    const [raw] = await prisma.$queryRawUnsafe<any[]>(sql, districtId);
-
-    const aggregated: Record<string, number> = {};
-    let blockCount = 0;
-
-    for (const [k, v] of Object.entries(raw)) {
-      if (k === "block_cnt") {
-        blockCount = Number(v);
-        continue;
-      }
-      if (k.startsWith("sum_")) {
-        const col = k.slice(4);
-        aggregated[col] = Number(v);
-      } else if (k.startsWith("cnt_")) {
-        const col = k.slice(4);
-        const sum = aggregated[col] ?? 0;
-        const cnt = Number(v);
-        if (AVG_FIELDS.has(col) && cnt > 0) {
-          aggregated[col] = Number((sum / cnt).toFixed(2));
-        }
-      }
-    }
-
-    const district = await prisma.district.findUnique({
-      where: { district_id: districtId },
-      select: { district_name: true },
-    });
-
-    res.json({
-      success: true,
-      data: {
-        district_id: districtId,
-        district_name: district?.district_name,
-        type,
-        blockCount,
-        aggregated,
-      },
-    });
-  } catch (e: any) {
-    console.error("Raw query failed:", e);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
 
 /* ---------- 6. Combined R+U Block Report ---------- */
 export const getCombinedBlockReport = async (req: Request, res: Response) => {
@@ -559,3 +484,103 @@ export const getCombinedBlockReport = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+interface DistrictReport {
+  district_name: string;
+  type: "ALL" | "R" | "U";
+  blockCount: number;
+  data: Record<string, number>;
+}
+
+export const getDistrictCombinedReport = async (req: Request, res: Response) => {
+  try {
+    const districtId = Number(req.params.id);
+    const { type = "ALL" } = req.query as { type?: "ALL" | "R" | "U" };
+
+    // Validate type
+    if (!["ALL", "R", "U"].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type. Must be one of: ALL, R, U",
+      });
+    }
+
+    // Build the filter dynamically
+    const blockFilter =
+      type === "ALL"
+        ? {}
+        : {
+            block_vd: {
+              Block_Type: type, // either 'R' or 'U'
+            },
+          };
+
+    // Query with optimized selection: only fetch necessary fields for block_vd to reduce payload
+    const districtData = await prisma.district.findUnique({
+      where: { district_id: districtId },
+      include: {
+        districtblockmap: {
+          where: blockFilter,
+          include: {
+            block_vd: {
+              select: {
+                bolck_Id: true, // Include ID if needed for reference
+                block_name: true, // Optional: if you need block names elsewhere
+                // Dynamically select all 'c' fields; in Prisma, we can list them explicitly for optimization
+                // For brevity, assuming c1-c84; adjust based on exact schema
+                c1: true, c2: true, c3: true, c4: true, c5: true, c6: true, c7: true, c8: true, c9: true, c10: true,
+                c11: true, c12: true, c13: true, c14: true, c15: true, c16: true, c17: true, c18: true, c19: true, c20: true,
+                c21: true, c22: true, c23: true, c24: true, c25: true, c26: true, c27: true, c28: true, c29: true, c30: true,
+                c31: true, c32: true, c33: true, c34: true, c35: true, c36: true, c37: true, c38: true, c39: true, c40: true,
+                c41: true, c42: true, c43: true, c44: true, c45: true, c46: true, c47: true, c48: true, c49: true, c50: true,
+                c51: true, c52: true, c53: true, c54: true, c55: true, c56: true, c57: true, c58: true, c59: true, c60: true,
+                c61: true, c62: true, c63: true, c64: true, c65: true, c66: true, c67: true, c68: true, c69: true, c70: true,
+                c71: true, c72: true, c73: true, c74: true, c75: true, c76: true, c77: true, c78: true, c79: true, c80: true,
+                c81: true, c82: true, c83: true, c84: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  
+    // Handle not found
+    if (!districtData) {
+      return res
+        .status(404)
+        .json({ success: false, message: "District not found" });
+    }
+
+    // Extract blocks
+    const blocks = districtData.districtblockmap.map((b) => b.block_vd);
+
+    // Predefine cFields for robustness (avoids error if no blocks; based on schema up to c84)
+    const cFields = Array.from({ length: 84 }, (_, i) => `c${i + 1}`);
+
+    // Build report data using reduce for efficient summation
+    const dataSums: Record<string, number> = {};
+    cFields.forEach((field) => {
+      dataSums[field] = blocks.reduce((sum:any, block) => sum + (block[field as keyof typeof block] ?? 0), 0);
+    });
+
+    const report: DistrictReport = {
+      district_name: districtData.district_name,
+      type,
+      blockCount: blocks.length,
+      data: dataSums,
+    };
+
+    res.json({
+      success: true,
+      data: report,
+    });
+  } catch (e) {
+    console.error("getDistrictCombinedReport error:", e);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+
+

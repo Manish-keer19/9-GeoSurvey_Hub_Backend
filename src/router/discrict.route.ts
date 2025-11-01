@@ -5,8 +5,9 @@ import {
 //   getDistrictWithBlocks,  
   getDistrictMeta,
   getBlockById,
-  getDistrictReport,
+  
   getCombinedBlockReport,
+  getDistrictCombinedReport,
 } from "../controller/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.js";
 
@@ -17,7 +18,7 @@ discrictRoute.get("/type/:type", isAuthenticated,getDistrictsByType);
 // discrictRoute.get("/:id", getDistrictWithBlocks); // optional
 discrictRoute.get("/:id/meta",isAuthenticated, getDistrictMeta);   // NEW – light
 discrictRoute.get("/block/:id", isAuthenticated,getBlockById);       // NEW – single block
-discrictRoute.get("/:id/report", isAuthenticated,getDistrictReport); // NEW – aggregated
+discrictRoute.get("/:id/report", isAuthenticated,getDistrictCombinedReport); // NEW – aggregated
 
 
 // routes/block.routes.ts
