@@ -19,5 +19,6 @@ discrictRoute.get("/:id/meta",isAuthenticated, getDistrictMeta);   // NEW – li
 discrictRoute.get("/block/:id", isAuthenticated,getBlockById);       // NEW – single block
 discrictRoute.get("/:id/report", isAuthenticated,getDistrictReport); // NEW – aggregated
 
+
 // routes/block.routes.ts
 discrictRoute.post("/combined-by-name", getCombinedBlockReport);

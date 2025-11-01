@@ -8,7 +8,7 @@
 // // export const getAllDistricts = async (req: Request, res: Response) => {
 // //   try {
 // //     const districts = await prisma.district.findMany({
-     
+
 // //     });
 
 // //     res.status(200).json({ success: true, data: districts });
@@ -96,7 +96,7 @@
 // export const getAllDistricts = async (req: Request, res: Response) => {
 //   try {
 //     const districts = await prisma.district.findMany({
-     
+
 //     });
 
 //     res.status(200).json({ success: true, data: districts });
@@ -272,7 +272,7 @@
 //       where: {
 //         block_name: {
 //           contains: cleanName,
-          
+
 //         },
 //         Block_Type: { in: ["R", "U"] },
 //         districtblockmap: {
@@ -520,43 +520,40 @@ export const getCombinedBlockReport = async (req: Request, res: Response) => {
 
     const blocks = await prisma.block_vd.findMany({
       where: {
-        block_name: { contains: clean },
+        block_name: { contains: clean}, // Case-insensitive search for better matching
         Block_Type: { in: ["R", "U"] },
         districtblockmap: { some: { districtId: Number(districtId) } },
       },
       select: selectBlockC(),
     });
 
+    console.log("Combining blocks:", blocks.map(b => ({ name: b.block_name, type: b.Block_Type })));
+
     if (!blocks.length)
       return res.status(404).json({ success: false, message: "Block not found" });
 
-    const sum: Record<string, number> = {};
-    const cnt: Record<string, number> = {};
-
-    blocks.forEach(b => {
-      C_COLUMNS.forEach(col => {
-        const v = (b as any)[col];
-        if (typeof v === "number") {
-          sum[col] = (sum[col] || 0) + v;
-          cnt[col] = (cnt[col] || 0) + 1;
-        }
-      });
-    });
-
-    Object.keys(sum).forEach(k => {
-      if (AVG_FIELDS.has(k) && cnt[k]) sum[k] = Number((sum[k] / cnt[k]).toFixed(2));
-    });
-
-    const display = blocks.length > 1 ? `${clean} (R + U)` : blocks[0].block_name;
-
-    const result = {
-      bolck_Id: -1,
-      block_name: display,
-      Block_Type: "R/U" as const,
-      ...sum,
+    // Initialize combined object with zeros for all c fields
+    const combined: any = {
+      bolck_Id: null,
+      block_name: `${clean} R+U`,
+      Block_Type: "R/U",
     };
 
-    res.json({ success: true, data: result });
+    // Dynamically get c field keys from first block (assuming consistent schema)
+    const cFields = Object.keys(blocks[0]).filter(key => key.startsWith('c'));
+    cFields.forEach(field => {
+      combined[field] = 0;
+    });
+
+    // Single pass per block to sum all fields (O(n * m) where m=83, n small)
+    for (const block of blocks) {
+      for (const field of cFields) {
+        combined[field] += Number(block[field]) || 0;
+      }
+    }
+
+    // Return only the combined sum data as object
+    res.json({ success: true, data: combined });
   } catch (e) {
     console.error(e);
     res.status(500).json({ success: false, message: "Server error" });
