@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "prisma:seed": "ts-node src/seed.ts",
-    "dev":" tsx src/index.ts ",
-  "build": "tsc",
+    "dev": "nodemon --watch src --ext ts,js,json --exec tsx src/index.ts",
+    "build": "tsc",
   "generate": "prisma generate",
   "start": "node dist/index.js",
   "postinstall": "npm run generate"

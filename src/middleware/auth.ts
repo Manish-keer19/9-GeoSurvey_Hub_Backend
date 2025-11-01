@@ -3,18 +3,18 @@ import jwt from "jsonwebtoken";
 
 
 // Authentication middleware
-export const authentication = (
-  req:any,
-  res:any,
-  next:any
+export const isAuthenticated = (
+  req: any,
+  res: any,
+  next: any
 ) => {
   // Correct return type as void
   try {
     const token =
       // req.body.token ||
-       req.header("Authorization")?.replace("Bearer ", "");
+      req.header("Authorization")?.replace("Bearer ", "");
     // console.log("Authorization header:", req.header("Authorization"));
-    // console.log("Extracted token:", token);
+    console.log("Extracted token:", token);
     // console.log("token in authantication", token);
     if (!token) {
       res.status(400).json({
@@ -36,7 +36,7 @@ export const authentication = (
 
     // Check if payload is of type JwtPayload
     if (typeof payload === "object") {
-      req.user = payload ;
+      req.user = payload;
     }
 
     next();
@@ -51,10 +51,10 @@ export const authentication = (
   }
 };
 
-export const IsAdmin = (
-  req:any,
-  res:any,
-  next:any
+export const isAdmin = (
+  req: any,
+  res: any,
+  next: any
 ) => {
   try {
     const user = req.user;
@@ -67,9 +67,9 @@ export const IsAdmin = (
     }
     // console.log("user in is admin", user);
 
-    
+
     // Check if the user is an admin
-    console.log("user.role in middlerware",user.role)
+    console.log("user.role in middlerware", user.role)
     if (user.role !== "ADMIN") {
       res.status(403).json({
         success: false,
@@ -87,3 +87,82 @@ export const IsAdmin = (
     });
   }
 }
+
+
+export const isDistrictUser = (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+    // console.log("user in is admin", user);
+
+
+    // Check if the user is an admin
+    console.log("user.role in middlerware", user.role)
+    if (user.role !== "DISTRICT_USER") {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden: You do not have permission to access this resource",
+      });
+    }
+    // console.log("welecom to admin");
+
+    next();
+  } catch (error) {
+    console.error("Error during admin check:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while checking admin status",
+    });
+  }
+}
+
+
+export const isVIDHANSABHA_USER = (
+  req: any,
+  res: any,
+  next: any
+) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+      return;
+    }
+    // console.log("user in is admin", user);
+
+
+    // Check if the user is an admin
+    console.log("user.role in middlerware", user.role)
+    if (user.role !== "VIDHANSABHA_USER") {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden: You do not have permission to access this resource",
+      });
+    }
+    // console.log("welecom to admin");
+
+    next();
+  } catch (error) {
+    console.error("Error during admin check:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while checking admin status",
+    });
+  }
+}
+
+
+

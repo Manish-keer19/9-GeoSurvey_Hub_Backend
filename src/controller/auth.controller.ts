@@ -2,53 +2,88 @@ import prisma from "../prisma.js";
 
 import jwt from "jsonwebtoken"
 import dotenv from 'dotenv'
-import bcrypt from "bcrypt"
+
 dotenv.config();
 
 
 export const registerUser = async (req: any, res: any) => {
     try {
-        const {name,code,role}=req.body;
+        const { name, code, role } = req.body;
 
-        if (!name || !code) {
-            return res.status(400).json({ message: "Name and code are required" });
+        if (!name || !code || !role) {
+            return res.status(400).json({ success: false, message: "Name, code and role are required" });
+        }
+
+        const validRoles = ['ADMIN', 'DISTRICT_USER', 'VIDHANSABHA_USER', 'LOKSABHA_USER'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ success: false, message: "Invalid role" });
         }
 
         const existingUser = await prisma.user.findUnique({
             where: { code },
         });
 
-
-        if(existingUser){            return res.status(400).json({ message: "User with this code already exists" });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: "User with this code already exists" });
         }
 
         const newUser = await prisma.user.create({
             data: {
                 name,
                 code,
-                role:role || 'DISTRICT_USER',
+                role,
             },
         });
-        
 
-        return res.status(201).json({ message: "User registered successfully", user: newUser });
+        return res.status(201).json({ success: true, message: "User registered successfully", data: { user: newUser } });
     } catch (error) {
-        
-        return res.status(500).json({ message: "Internal server error" });
+        console.log("error in register user", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
 
+export const registerAdmin = async (req: any, res: any) => {
+  try {
+    const { code, name } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ success: false, message: 'code is required' });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { code: code }
+    })
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'User with this code already exists' });
+    }
+
+
+    
+    const newUser = await prisma.user.create({
+      data: { code: code, name: name || "Admin", role:"ADMIN" }
+    })
+
+    res.status(201).json({ success: true, message: 'Admin registered successfully', data: { user: newUser } });
+
+  } catch (error) {
+    console.log("error in register Admin",error);
+
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+
+}
 
 export const login = async (req: any, res: any) => {
   try {
-    const { code } = req.body;
+    const { code,role } = req.body;
     console.log("code in login", code)
-    if (!code || code.length !== 4) {
-      return res.status(400).json({ success: false, message: 'Invalid 4-digit code' });
+    if (!code || code.length !== 4 ||!role) {
+      return res.status(400).json({ success: false, message: 'All fileds are required' });
     }
 
     const user = await prisma.user.findUnique({
-      where: { code },
+      where: { code ,role:role},
     });
 
   
@@ -88,35 +123,36 @@ export const login = async (req: any, res: any) => {
 };
 
 
-export const registerAdmin = async (req: any, res: any) => {
-  try {
-    const { code, name } = req.body;
+export const getAllUsers = async (req: any, res: any) => {
+try {
+  
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      role: true,
+    },
+  });
 
-    if (!code) {
-      return res.status(400).json({ success: false, message: 'code is required' });
-    }
+  if(users.length===0){
 
-    const existingUser = await prisma.user.findUnique({
-      where: { code: code }
-    })
-
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: 'User with this code already exists' });
-    }
-
-
-    
-    const newUser = await prisma.user.create({
-      data: { code: code, name: name || "Admin", role:"ADMIN" }
-    })
-
-    res.status(201).json({ success: true, message: 'Admin registered successfully', data: { user: newUser } });
-
-  } catch (error) {
-    console.log("error in register Admin",error);
-
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    return res.status(404).json({ success: false, message: "No users found" });
   }
 
+  return res.json({ success: true, data: users });
+
+
+
+} catch (error) {
+  
+  return res.status(500).json({ success: false, message: "Internal server error" });
 }
+
+}
+
+
+
+
+
 
