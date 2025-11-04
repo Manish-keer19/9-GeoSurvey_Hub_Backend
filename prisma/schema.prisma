@@ -129,6 +129,13 @@ model User {
   name String
   role User_role @default(DISTRICT_USER)
 }
+model districtMap{
+  id   Int   @id @default(autoincrement())
+  district_id  Int
+  district_name  String
+  district_value Int
+}
+
 
 enum block_vd_Block_Type {
   R

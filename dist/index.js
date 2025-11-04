@@ -8,6 +8,7 @@ import { authRoute } from "./router/auth.route.js";
 const app = express();
 const PORT = 3000;
 app.use(express.json());
+app.use(express.text({ type: 'text/csv' }));
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: "/tmp/",

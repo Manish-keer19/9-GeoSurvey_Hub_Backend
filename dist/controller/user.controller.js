@@ -1,5 +1,4 @@
-// // import { Request, Response } from "express";
-// // import prisma from "../prisma.js";
+import axios from "axios";
 import prisma from "../prisma.js";
 import { selectBlockC } from "../utils/prisma/selectc.js";
 /* ---------- 1. All Districts ---------- */
@@ -165,7 +164,7 @@ export const getDistrictCombinedReport = async (req, res) => {
                                 c51: true, c52: true, c53: true, c54: true, c55: true, c56: true, c57: true, c58: true, c59: true, c60: true,
                                 c61: true, c62: true, c63: true, c64: true, c65: true, c66: true, c67: true, c68: true, c69: true, c70: true,
                                 c71: true, c72: true, c73: true, c74: true, c75: true, c76: true, c77: true, c78: true, c79: true, c80: true,
-                                c81: true, c82: true, c83: true, c84: true,
+                                c81: true, c82: true, c83: true,
                             },
                         },
                     },
@@ -201,5 +200,218 @@ export const getDistrictCombinedReport = async (req, res) => {
     catch (e) {
         console.error("getDistrictCombinedReport error:", e);
         res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+export const updateWrapperWithCsv = async (req, res) => {
+    const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN || "YOUR_NEW_TOKEN_HERE";
+    const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID || "YOUR_CHART_ID_HERE";
+    try {
+        // ⚙️ Ensure file is uploaded
+        if (!req.files || !req.files.csv) {
+            return res.status(400).json({
+                success: false,
+                message: "CSV file is required",
+            });
+        }
+        // 🧠 express-fileupload gives you a File object
+        const csvFile = req.files.csv;
+        // Convert buffer → string
+        const csv = csvFile.data.toString("utf-8");
+        console.log("Received CSV from frontend:\n", csv.slice(0, 200) + "...");
+        // 1️⃣ Upload CSV data to Datawrapper
+        const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
+            headers: {
+                Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+                "Content-Type": "text/csv",
+            },
+        });
+        console.log("Datawrapper upload status:", updateRes.status);
+        if (![200, 204].includes(updateRes.status)) {
+            console.error("Upload failed:", updateRes.status, updateRes.data);
+            throw new Error("Failed to upload chart data");
+        }
+        // 2️⃣ Publish updated chart
+        const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
+            headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+        });
+        console.log("Publish response:", publishRes.status);
+        if (publishRes.status !== 200) {
+            console.error("Error publishing chart:", publishRes.status, publishRes.data);
+            throw new Error("Failed to publish chart");
+        }
+        // ✅ Success
+        res.json({
+            success: true,
+            message: "Datawrapper chart updated successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error updating Datawrapper chart:", error.response?.data || error.message);
+        res.status(500).json({
+            success: false,
+            message: "Server error while updating Datawrapper chart",
+        });
+    }
+};
+export const updateWrapper = async (req, res) => {
+    // const data = [{"District":"Balod","Value":95},{"District":"Baloda Bazar","Value":100},{"District":"Balrampur","Value":98},{"District":"Bastar","Value":90},{"District":"Bemetara","Value":95},{"District":"Bijapur","Value":91},{"District":"Bilaspur","Value":90},{"District":"Dantewada","Value":92},{"District":"Dhamtari","Value":94},{"District":"Durg","Value":92},{"District":"Gariaband","Value":95},{"District":"Gaurela-Pendra-Marwahi","Value":99},{"District":"Janjgir-Champa","Value":90},{"District":"Jashpur","Value":99},{"District":"Kabirdham","Value":90},{"District":"Khairagarh-Chhuikhadan-Gandai","Value":91},{"District":"Kondagaon","Value":90},{"District":"Korba","Value":98},{"District":"Koriya","Value":94},{"District":"Mahasamund","Value":97},{"District":"Manendragarh-Chirimiri-Bharatpur","Value":91},{"District":"Mohla-Manpur-Ambagarh Chowki","Value":91},{"District":"Mungeli","Value":94},{"District":"Narayanpur","Value":92},{"District":"Raigarh","Value":93},{"District":"Raipur","Value":15},{"District":"Rajnandgaon","Value":91},{"District":"Sakti","Value":96},{"District":"Sarangarh-Bilaigarh","Value":90},{"District":"Sukma","Value":95},{"District":"Surajpur","Value":94},{"District":"Surguja","Value":91},{"District":"Uttar Bastar Kanker","Value":94}];
+    const data = await prisma.districtMap.findMany({});
+    const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN || "YOUR_NEW_TOKEN_HERE";
+    const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID || "YOUR_CHART_ID_HERE";
+    try {
+        // Convert to CSV
+        let csv = "District,Value\n" + data.map((d) => `${d.District},${d.Value}`).join("\n");
+        console.log("Generated CSV:\n", csv);
+        // Upload new data
+        const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
+            headers: {
+                Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+                "Content-Type": "text/csv",
+            },
+        });
+        console.log("Datawrapper upload status:", updateRes.status);
+        if (![200, 204].includes(updateRes.status)) {
+            console.error("Upload failed:", updateRes.status, updateRes.data);
+            throw new Error("Failed to upload chart data");
+        }
+        // Publish updated chart
+        const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
+            headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+        });
+        console.log("Publish response:", publishRes.status);
+        if (publishRes.status !== 200) {
+            console.error("Error publishing chart:", publishRes.status, publishRes.data);
+            throw new Error("Failed to publish chart");
+        }
+        res.json({ success: true, message: "Datawrapper chart updated successfully" });
+    }
+    catch (error) {
+        console.error("Error updating Datawrapper chart:", error.response?.data || error.message);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+export const createDistrictMaps = async (req, res) => {
+    try {
+        const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN;
+        const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID;
+        if (!DATAWRAPPER_API_TOKEN || !DATAWRAPPER_CHART_ID) {
+            throw new Error('Missing required environment variables: DATAWRAPPER_API_TOKEN or DATAWRAPPER_CHART_ID');
+        }
+        const { mapsData } = req.body;
+        if (!mapsData || !Array.isArray(mapsData) || mapsData.length === 0) {
+            return res.status(400).json({ success: false, message: 'mapsData must be a non-empty array' });
+        }
+        // Basic validation: each item should have District and Value
+        const invalidItems = mapsData.filter((d) => !d.District || typeof d.Value !== 'number');
+        if (invalidItems.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid data in mapsData: ${invalidItems.length} items missing District or Value`
+            });
+        }
+        // Optional: Lookup or generate district_id (example: assume you have a districts table)
+        // const districts = await prisma.district.findMany({ where: { name: { in: mapsData.map(d => d.District) } }});
+        // Then map district_id from lookup...
+        const prismaData = mapsData.map((d) => ({
+            district_id: d.district_id,
+            district_name: d.District,
+            district_value: d.Value,
+        }));
+        const dbResult = await prisma.districtMap.createMany({
+            data: prismaData,
+        });
+        if (dbResult.count === 0) {
+            throw new Error('No records were created in the database');
+        }
+        // Generate CSV from input data (matches structure)
+        const csv = 'District,Value\n' + mapsData.map((d) => `${d.District},${d.Value}`).join('\n');
+        console.log('Generated CSV:\n', csv);
+        // Upload new data
+        const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
+            headers: {
+                Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+                'Content-Type': 'text/csv',
+            },
+        });
+        console.log('Datawrapper upload status:', updateRes.status);
+        if (![200, 204].includes(updateRes.status)) {
+            console.error('Upload failed:', updateRes.status, updateRes.data);
+            throw new Error(`Failed to upload chart data: ${updateRes.status}`);
+        }
+        // Publish updated chart
+        const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
+            headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+        });
+        console.log('Publish response:', publishRes.status);
+        if (publishRes.status !== 200) {
+            console.error('Error publishing chart:', publishRes.status, publishRes.data);
+            throw new Error(`Failed to publish chart: ${publishRes.status}`);
+        }
+        res.json({
+            success: true,
+            message: 'District map created successfully',
+            details: { createdCount: dbResult.count }
+        });
+    }
+    catch (error) {
+        console.error('Error in createDistrictMaps:', error.message || error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+    finally {
+        // Optional: Disconnect Prisma if in a long-lived app
+        // await prisma.$disconnect();
+    }
+};
+export const getDistrictMapData = async (req, res) => {
+    try {
+        const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN;
+        const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID;
+        if (!DATAWRAPPER_API_TOKEN || !DATAWRAPPER_CHART_ID) {
+            throw new Error('Missing required environment variables: DATAWRAPPER_API_TOKEN or DATAWRAPPER_CHART_ID');
+        }
+        const data = await prisma.districtMap.findMany({});
+        // Generate CSV from input data (matches structure)
+        const csv = 'District,Value\n' + data.map((d) => `${d.district_name},${d.district_value}`).join('\n');
+        console.log('Generated CSV:\n', csv);
+        // Upload new data
+        const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
+            headers: {
+                Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+                'Content-Type': 'text/csv',
+            },
+        });
+        console.log('Datawrapper upload status:', updateRes.status);
+        if (![200, 204].includes(updateRes.status)) {
+            console.error('Upload failed:', updateRes.status, updateRes.data);
+            throw new Error(`Failed to upload chart data: ${updateRes.status}`);
+        }
+        // Publish updated chart
+        const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
+            headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+        });
+        console.log('Publish response:', publishRes.status);
+        if (publishRes.status !== 200) {
+            console.error('Error publishing chart:', publishRes.status, publishRes.data);
+            throw new Error(`Failed to publish chart: ${publishRes.status}`);
+        }
+        res.json({
+            success: true,
+            message: 'District get successfully',
+            //  data:{data,csv}
+        });
+    }
+    catch (error) {
+        console.error('Error in createDistrictMaps:', error.message || error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Server error'
+        });
+    }
+    finally {
+        // Optional: Disconnect Prisma if in a long-lived app
+        // await prisma.$disconnect();
     }
 };

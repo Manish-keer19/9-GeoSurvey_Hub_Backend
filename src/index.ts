@@ -15,6 +15,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.use(express.text({ type: 'text/csv' }));
 
 app.use(
   fileUpload({
@@ -41,6 +42,7 @@ app.use("/api/v1/districts",discrictRoute)
 app.get("/", (req:any, res:any) => {
   res.send("Hello World!");
 });
+
 
 // ✅ Start server after Prisma connects
 async function startServer() {

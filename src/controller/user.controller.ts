@@ -1,351 +1,5 @@
-// // import { Request, Response } from "express";
-// // import prisma from "../prisma.js";
 
-
-// // type DistrictType = "R" | "U";
-
-// // // ✅ Get all districts
-// // export const getAllDistricts = async (req: Request, res: Response) => {
-// //   try {
-// //     const districts = await prisma.district.findMany({
-
-// //     });
-
-// //     res.status(200).json({ success: true, data: districts });
-// //   } catch (error) {
-// //     console.error(error);
-// //     res.status(500).json({ success: false, message: "Server error" });
-// //   }
-// // };
-
-// // // ✅ Get districts by type (R or U)
-// // export const getDistrictsByType = async (req: Request, res: Response) => {
-// //   try {
-// //     const { type } = req.params;
-
-// //     if (!["R", "U"].includes(type)) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Invalid type. Use 'R' for Rural or 'U' for Urban.",
-// //       });
-// //     }
-
-// //     const districts = await prisma.district.findMany({
-// //       where: {
-// //         districtblockmap: {
-// //           some: {
-// //             block_vd: { Block_Type: type as DistrictType },
-// //           },
-// //         },
-// //       },
-// //       include: {
-// //         districtblockmap: {
-// //           include: {
-// //             block_vd: true,
-// //           },
-// //         },
-// //       },
-// //     });
-
-// //     res.status(200).json({ success: true, data: districts });
-// //   } catch (error) {
-// //     console.error(error);
-// //     res.status(500).json({ success: false, message: "Server error" });
-// //   }
-// // };
-
-// // // ✅ Get a single district and its blocks
-// // export const getDistrictWithBlocks = async (req: Request, res: Response) => {
-// //   try {
-// //     const { id } = req.params;
-// //     const districtId = parseInt(id);
-
-// //     const district = await prisma.district.findUnique({
-// //       where: { district_id: districtId },
-// //       include: {
-// //         districtblockmap: {
-// //           include: {
-// //             block_vd: true,
-// //           },
-// //         },
-// //       },
-// //     });
-
-// //     if (!district) {
-// //       return res.status(404).json({
-// //         success: false,
-// //         message: "District not found",
-// //       });
-// //     }
-
-// //     res.status(200).json({ success: true, data: district });
-// //   } catch (error) {
-// //     console.error(error);
-// //     res.status(500).json({ success: false, message: "Server error" });
-// //   }
-// // };
-
-
-// import { Request, Response } from "express";
-// import prisma from "../prisma.js";
-
-// type BlockType = "R" | "U";
-
-
-// // ✅ Get all districts
-// export const getAllDistricts = async (req: Request, res: Response) => {
-//   try {
-//     const districts = await prisma.district.findMany({
-
-//     });
-
-//     res.status(200).json({ success: true, data: districts });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-// // ✅ Get districts by type (R or U)
-// export const getDistrictsByType = async (req: Request, res: Response) => {
-//   try {
-//     const { type } = req.params;
-
-//     if (!["R", "U"].includes(type)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid type. Use 'R' for Rural or 'U' for Urban.",
-//       });
-//     }
-
-//     const districts = await prisma.district.findMany({
-//       where: {
-//         districtblockmap: {
-//           some: {
-//             block_vd: { Block_Type: type as BlockType}
-//           },
-//         },
-//       },
-//       include: {
-//         districtblockmap: {
-//           include: {
-//             block_vd: true,
-//           },
-//         },
-//       },
-//     });
-
-//     res.status(200).json({ success: true, data: districts });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-// // === 1. Get District + Block Metadata (for dropdowns) ===
-// export const getDistrictMeta = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const districtId = Number(id);
-
-//     const district = await prisma.district.findUnique({
-//       where: { district_id: districtId },
-//       select: {
-//         district_id: true,
-//         district_name: true,
-//         districtblockmap: {
-//           select: {
-//             block_vd: {
-//               select: {
-//                 bolck_Id: true,
-//                 block_name: true,
-//                 Block_Type: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-
-//     if (!district) return res.status(404).json({ success: false, message: "District not found" });
-
-//     const blocks = district.districtblockmap.map(m => m.block_vd);
-//     res.json({ success: true, data: { ...district, blocks } });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-// // === 2. Get Full Block Data (for single block report) ===
-// export const getBlockById = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const blockId = Number(id);
-
-//     const block = await prisma.block_vd.findUnique({
-//       where: { bolck_Id: blockId },
-//     });
-
-//     if (!block) return res.status(404).json({ success: false, message: "Block not found" });
-
-//     res.json({ success: true, data: block });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-// // === 3. Get Aggregated District Report (ALL/R/U) ===
-// export const getDistrictReport = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const { type = "ALL" } = req.query as { type?: "ALL" | "R" | "U" };
-//     const districtId = Number(id);
-
-//     if (!["ALL", "R", "U"].includes(type)) {
-//       return res.status(400).json({ success: false, message: "Invalid type" });
-//     }
-
-//     const where: any = { districtblockmap: { some: { districtId } } };
-//     if (type !== "ALL") {
-//       where.districtblockmap.some.block_vd.Block_Type = type;
-//     }
-
-//     const blocks = await prisma.block_vd.findMany({ where });
-
-//     const aggregated: Record<string, number> = {};
-//     const counts: Record<string, number> = {};
-
-//     blocks.forEach(block => {
-//       Object.entries(block).forEach(([key, val]) => {
-//         if (key.startsWith("c") && key !== "c84" && typeof val === "number") {
-//           aggregated[key] = (aggregated[key] || 0) + val;
-//           counts[key] = (counts[key] || 0) + 1;
-//         }
-//       });
-//     });
-
-//     // Convert sums → averages for percentage fields
-//     const avgKeys = /^(c(20|21|22|23|25|26|27|28|30|31|32|33|35|36|37|38|40|41|42|43|45|46|47|48|50|51|52|53|56|57|58|59|62|63|64|65|66|68|69|70|71|72|74|75|76|77|79|80|81|82))$/;
-//     Object.keys(aggregated).forEach(k => {
-//       if (avgKeys.test(k)) {
-//         aggregated[k] = counts[k] > 0 ? Number((aggregated[k] / counts[k]).toFixed(2)) : 0;
-//       }
-//     });
-
-//     const district = await prisma.district.findUnique({
-//       where: { district_id: districtId },
-//       select: { district_name: true },
-//     });
-
-//     res.json({
-//       success: true,
-//       data: {
-//         district_id: districtId,
-//         district_name: district?.district_name,
-//         type,
-//         blockCount: blocks.length,
-//         aggregated,
-//       },
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-// // === 4. Get Combined Block Report (R + U) ===
-
-// export const getCombinedBlockReport = async (req: Request, res: Response) => {
-//   try {
-//     const { blockName, districtId } = req.body; // blockName = "Pusour", districtId = 5
-
-//     if (!blockName || !districtId) {
-//       return res.status(400).json({ success: false, message: "blockName and districtId required" });
-//     }
-
-//     const cleanName = blockName.trim();
-//     console.log("Combining blocks for:", cleanName, "in district ID:", districtId);
-
-//     // Find all blocks with name like "Pusour (R)" or "Pusour (U)" in this district
-//     const blocks = await prisma.block_vd.findMany({
-//       where: {
-//         block_name: {
-//           contains: cleanName,
-
-//         },
-//         Block_Type: { in: ["R", "U"] },
-//         districtblockmap: {
-//           some: { districtId: Number(districtId) },
-//         },
-//       },
-//     });
-//     console.log("Found blocks:",blocks.map(b=>({name:b.block_name,type:b.Block_Type})));
-
-//     if (blocks.length === 0) {
-//       return res.status(404).json({ success: false, message: "Block not found" });
-//     }
-
-//   const sameName = await prisma.block_vd.findMany({
-//     where:{block_name:blockName}
-//   })
-//   console.log("Same name blocks:",sameName.map(b=>({name:b.block_name,type:b.Block_Type})));
-
-//     // Sum + count
-//     const sum: Record<string, number> = {};
-//     const count: Record<string, number> = {};
-
-//     blocks.forEach(block => {
-//       Object.entries(block).forEach(([k, v]) => {
-//         if (k.startsWith("c") && k !== "c84" && typeof v === "number") {
-//           sum[k] = (sum[k] || 0) + v;
-//           count[k] = (count[k] || 0) + 1;
-//         }
-//       });
-//     });
-
-//     // Average percentage fields
-//     const avgFields = new Set([
-//       "c20","c21","c22","c23","c25","c26","c27","c28",
-//       "c30","c31","c32","c33","c35","c36","c37","c38",
-//       "c40","c41","c42","c43","c45","c46","c47","c48",
-//       "c50","c51","c52","c53","c56","c57","c58","c59",
-//       "c62","c63","c64","c65","c66","c68","c69","c70","c71","c72",
-//       "c74","c75","c76","c77","c79","c80","c81","c82"
-//     ]);
-
-//     Object.keys(sum).forEach(k => {
-//       if (avgFields.has(k)) {
-//         sum[k] = count[k] > 0 ? Number((sum[k] / count[k]).toFixed(2)) : 0;
-//       }
-//     });
-
-//     const displayName = blocks.length > 1 ? `${cleanName} (R + U)` : blocks[0].block_name;
-
-//     const result = {
-//       bolck_Id: -1,
-//       block_name: displayName,
-//       Block_Type: "R/U",
-//       ...sum,
-//     };
-
-//     res.json({ success: true, data: result });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
-
-
-
-
-
-
-
-
-
-
+import axios from "axios";
 import { Request, Response } from "express";
 import prisma from "../prisma.js";
 import { C_COLUMNS, AVG_FIELDS, selectBlockC } from "../utils/prisma/selectc.js";
@@ -445,7 +99,7 @@ export const getCombinedBlockReport = async (req: Request, res: Response) => {
 
     const blocks = await prisma.block_vd.findMany({
       where: {
-        block_name: { contains: clean}, // Case-insensitive search for better matching
+        block_name: { contains: clean }, // Case-insensitive search for better matching
         Block_Type: { in: ["R", "U"] },
         districtblockmap: { some: { districtId: Number(districtId) } },
       },
@@ -511,10 +165,10 @@ export const getDistrictCombinedReport = async (req: Request, res: Response) => 
       type === "ALL"
         ? {}
         : {
-            block_vd: {
-              Block_Type: type, // either 'R' or 'U'
-            },
-          };
+          block_vd: {
+            Block_Type: type, // either 'R' or 'U'
+          },
+        };
 
     // Query with optimized selection: only fetch necessary fields for block_vd to reduce payload
     const districtData = await prisma.district.findUnique({
@@ -537,14 +191,14 @@ export const getDistrictCombinedReport = async (req: Request, res: Response) => 
                 c51: true, c52: true, c53: true, c54: true, c55: true, c56: true, c57: true, c58: true, c59: true, c60: true,
                 c61: true, c62: true, c63: true, c64: true, c65: true, c66: true, c67: true, c68: true, c69: true, c70: true,
                 c71: true, c72: true, c73: true, c74: true, c75: true, c76: true, c77: true, c78: true, c79: true, c80: true,
-                c81: true, c82: true, c83: true, c84: true,
+                c81: true, c82: true, c83: true,
               },
             },
           },
         },
       },
     });
-  
+
     // Handle not found
     if (!districtData) {
       return res
@@ -561,7 +215,7 @@ export const getDistrictCombinedReport = async (req: Request, res: Response) => 
     // Build report data using reduce for efficient summation
     const dataSums: Record<string, number> = {};
     cFields.forEach((field) => {
-      dataSums[field] = blocks.reduce((sum:any, block) => sum + (block[field as keyof typeof block] ?? 0), 0);
+      dataSums[field] = blocks.reduce((sum: any, block) => sum + (block[field as keyof typeof block] ?? 0), 0);
     });
 
     const report: DistrictReport = {
@@ -583,4 +237,313 @@ export const getDistrictCombinedReport = async (req: Request, res: Response) => 
 
 
 
+export const updateWrapperWithCsv = async (req: Request, res: Response) => {
+  const DATAWRAPPER_API_TOKEN =
+    process.env.DATAWRAPPER_API_TOKEN || "YOUR_NEW_TOKEN_HERE";
+  const DATAWRAPPER_CHART_ID =
+    process.env.DATAWRAPPER_CHART_ID || "YOUR_CHART_ID_HERE";
 
+  try {
+    // ⚙️ Ensure file is uploaded
+    if (!req.files || !req.files.csv) {
+      return res.status(400).json({
+        success: false,
+        message: "CSV file is required",
+      });
+    }
+
+    // 🧠 express-fileupload gives you a File object
+    const csvFile = req.files.csv as any;
+
+    // Convert buffer → string
+    const csv = csvFile.data.toString("utf-8");
+
+    console.log("Received CSV from frontend:\n", csv.slice(0, 200) + "...");
+
+    // 1️⃣ Upload CSV data to Datawrapper
+    const updateRes = await axios.put(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`,
+      csv,
+      {
+        headers: {
+          Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+          "Content-Type": "text/csv",
+        },
+      }
+    );
+
+    console.log("Datawrapper upload status:", updateRes.status);
+
+    if (![200, 204].includes(updateRes.status)) {
+      console.error("Upload failed:", updateRes.status, updateRes.data);
+      throw new Error("Failed to upload chart data");
+    }
+
+    // 2️⃣ Publish updated chart
+    const publishRes = await axios.post(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+      }
+    );
+
+    console.log("Publish response:", publishRes.status);
+
+    if (publishRes.status !== 200) {
+      console.error("Error publishing chart:", publishRes.status, publishRes.data);
+      throw new Error("Failed to publish chart");
+    }
+
+    // ✅ Success
+    res.json({
+      success: true,
+      message: "Datawrapper chart updated successfully",
+    });
+  } catch (error: any) {
+    console.error(
+      "Error updating Datawrapper chart:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating Datawrapper chart",
+    });
+  }
+};
+
+
+
+
+
+
+export const updateWrapper = async (req: Request, res: Response) => {
+
+
+  // const data = [{"District":"Balod","Value":95},{"District":"Baloda Bazar","Value":100},{"District":"Balrampur","Value":98},{"District":"Bastar","Value":90},{"District":"Bemetara","Value":95},{"District":"Bijapur","Value":91},{"District":"Bilaspur","Value":90},{"District":"Dantewada","Value":92},{"District":"Dhamtari","Value":94},{"District":"Durg","Value":92},{"District":"Gariaband","Value":95},{"District":"Gaurela-Pendra-Marwahi","Value":99},{"District":"Janjgir-Champa","Value":90},{"District":"Jashpur","Value":99},{"District":"Kabirdham","Value":90},{"District":"Khairagarh-Chhuikhadan-Gandai","Value":91},{"District":"Kondagaon","Value":90},{"District":"Korba","Value":98},{"District":"Koriya","Value":94},{"District":"Mahasamund","Value":97},{"District":"Manendragarh-Chirimiri-Bharatpur","Value":91},{"District":"Mohla-Manpur-Ambagarh Chowki","Value":91},{"District":"Mungeli","Value":94},{"District":"Narayanpur","Value":92},{"District":"Raigarh","Value":93},{"District":"Raipur","Value":15},{"District":"Rajnandgaon","Value":91},{"District":"Sakti","Value":96},{"District":"Sarangarh-Bilaigarh","Value":90},{"District":"Sukma","Value":95},{"District":"Surajpur","Value":94},{"District":"Surguja","Value":91},{"District":"Uttar Bastar Kanker","Value":94}];
+
+
+
+  const data = await prisma.districtMap.findMany({
+
+  });
+
+  const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN || "YOUR_NEW_TOKEN_HERE";
+  const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID || "YOUR_CHART_ID_HERE";
+
+  try {
+    // Convert to CSV
+    let csv = "District,Value\n" + data.map((d: any) => `${d.District},${d.Value}`).join("\n");
+
+    console.log("Generated CSV:\n", csv);
+
+    // Upload new data
+    const updateRes = await axios.put(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`,
+      csv,
+      {
+        headers: {
+          Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+          "Content-Type": "text/csv",
+        },
+      }
+    );
+
+    console.log("Datawrapper upload status:", updateRes.status);
+    if (![200, 204].includes(updateRes.status)) {
+      console.error("Upload failed:", updateRes.status, updateRes.data);
+      throw new Error("Failed to upload chart data");
+    }
+
+    // Publish updated chart
+    const publishRes = await axios.post(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+      }
+    );
+
+    console.log("Publish response:", publishRes.status);
+    if (publishRes.status !== 200) {
+      console.error("Error publishing chart:", publishRes.status, publishRes.data);
+      throw new Error("Failed to publish chart");
+    }
+
+    res.json({ success: true, message: "Datawrapper chart updated successfully" });
+  } catch (error: any) {
+    console.error("Error updating Datawrapper chart:", error.response?.data || error.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+
+}
+
+
+export const createDistrictMaps = async (req: any, res: any) => {
+  try {
+    const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN;
+    const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID;
+
+    if (!DATAWRAPPER_API_TOKEN || !DATAWRAPPER_CHART_ID) {
+      throw new Error('Missing required environment variables: DATAWRAPPER_API_TOKEN or DATAWRAPPER_CHART_ID');
+    }
+
+    const { mapsData } = req.body;
+
+    if (!mapsData || !Array.isArray(mapsData) || mapsData.length === 0) {
+      return res.status(400).json({ success: false, message: 'mapsData must be a non-empty array' });
+    }
+
+    // Basic validation: each item should have District and Value
+    const invalidItems = mapsData.filter((d: any) => !d.District || typeof d.Value !== 'number');
+    if (invalidItems.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Invalid data in mapsData: ${invalidItems.length} items missing District or Value` 
+      });
+    }
+
+    // Optional: Lookup or generate district_id (example: assume you have a districts table)
+    // const districts = await prisma.district.findMany({ where: { name: { in: mapsData.map(d => d.District) } }});
+    // Then map district_id from lookup...
+
+    const prismaData = mapsData.map((d: any) => ({
+     district_id: d.district_id,
+      district_name: d.District,
+      district_value: d.Value,
+    }));
+
+    const dbResult = await prisma.districtMap.createMany({
+      data: prismaData,
+    });
+
+    if (dbResult.count === 0) {
+      throw new Error('No records were created in the database');
+    }
+
+    // Generate CSV from input data (matches structure)
+    const csv = 'District,Value\n' + mapsData.map((d: any) => `${d.District},${d.Value}`).join('\n');
+    console.log('Generated CSV:\n', csv);
+
+    // Upload new data
+    const updateRes = await axios.put(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`,
+      csv,
+      {
+        headers: {
+          Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+          'Content-Type': 'text/csv',
+        },
+      }
+    );
+
+    console.log('Datawrapper upload status:', updateRes.status);
+    if (![200, 204].includes(updateRes.status)) {
+      console.error('Upload failed:', updateRes.status, updateRes.data);
+      throw new Error(`Failed to upload chart data: ${updateRes.status}`);
+    }
+
+    // Publish updated chart
+    const publishRes = await axios.post(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+      }
+    );
+
+    console.log('Publish response:', publishRes.status);
+    if (publishRes.status !== 200) {
+      console.error('Error publishing chart:', publishRes.status, publishRes.data);
+      throw new Error(`Failed to publish chart: ${publishRes.status}`);
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'District map created successfully',
+      details: { createdCount: dbResult.count }
+    });
+
+  } catch (error: any) {
+    console.error('Error in createDistrictMaps:', error.message || error);
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Server error' 
+    });
+  } finally {
+    // Optional: Disconnect Prisma if in a long-lived app
+    // await prisma.$disconnect();
+  }
+};
+
+
+export const getDistrictMapData = async (req: any, res: any) => {
+  try {
+    const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN;
+    const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID;
+
+    if (!DATAWRAPPER_API_TOKEN || !DATAWRAPPER_CHART_ID) {
+      throw new Error('Missing required environment variables: DATAWRAPPER_API_TOKEN or DATAWRAPPER_CHART_ID');
+    }
+
+
+
+    const data = await prisma.districtMap.findMany({
+
+    });
+
+    // Generate CSV from input data (matches structure)
+    const csv = 'District,Value\n' + data.map((d: any) => `${d.district_name},${d.district_value}`).join('\n');
+    console.log('Generated CSV:\n', csv);
+
+
+    // Upload new data
+    const updateRes = await axios.put(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`,
+      csv,
+      {
+        headers: {
+          Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}`,
+          'Content-Type': 'text/csv',
+        },
+      }
+    );
+
+    console.log('Datawrapper upload status:', updateRes.status);
+    if (![200, 204].includes(updateRes.status)) {
+      console.error('Upload failed:', updateRes.status, updateRes.data);
+      throw new Error(`Failed to upload chart data: ${updateRes.status}`);
+    }
+
+    // Publish updated chart
+    const publishRes = await axios.post(
+      `https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
+      }
+    );
+
+    console.log('Publish response:', publishRes.status);
+    if (publishRes.status !== 200) {
+      console.error('Error publishing chart:', publishRes.status, publishRes.data);
+      throw new Error(`Failed to publish chart: ${publishRes.status}`);
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'District get successfully',
+    //  data:{data,csv}
+    });
+
+  } catch (error: any) {
+    console.error('Error in createDistrictMaps:', error.message || error);
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Server error' 
+    });
+  } finally {
+    // Optional: Disconnect Prisma if in a long-lived app
+    // await prisma.$disconnect();
+  }
+};

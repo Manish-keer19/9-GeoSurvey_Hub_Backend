@@ -8,6 +8,10 @@ import {
   
   getCombinedBlockReport,
   getDistrictCombinedReport,
+  updateWrapper,
+  updateWrapperWithCsv,
+  createDistrictMaps,
+  getDistrictMapData,
 } from "../controller/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.js";
 
@@ -23,3 +27,9 @@ discrictRoute.get("/:id/report", isAuthenticated,getDistrictCombinedReport); // 
 
 // routes/block.routes.ts
 discrictRoute.post("/combined-by-name", getCombinedBlockReport);
+
+discrictRoute.get("/get-districts",getAllDistricts);
+// discrictRoute.put("/update-wrapper-with-csv",updateWrapperWithCsv);
+// discrictRoute.get("/update-wrapper",updateWrapper);
+discrictRoute.post("/create-district-map",createDistrictMaps);
+discrictRoute.get("/get-district-map-data",getDistrictMapData);
