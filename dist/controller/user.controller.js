@@ -4,7 +4,7 @@ import { selectBlockC } from "../utils/prisma/selectc.js";
 /* ---------- 1. All Districts ---------- */
 export const getAllDistricts = async (_, res) => {
     try {
-        const districts = await prisma.district.findMany({
+        const districts = await prisma.district_vandan.findMany({
             select: { district_id: true, district_name: true },
             orderBy: { district_name: "asc" },
         });
@@ -21,14 +21,14 @@ export const getDistrictsByType = async (req, res) => {
         const { type } = req.params;
         if (!["R", "U"].includes(type))
             return res.status(400).json({ success: false, message: "Invalid type" });
-        const districts = await prisma.district.findMany({
-            where: { districtblockmap: { some: { block_vd: { Block_Type: type } } } },
+        const districts = await prisma.district_vandan.findMany({
+            where: { districtblockmap_vandan: { some: { block_vd_vandan: { Block_Type: type } } } },
             select: {
                 district_id: true,
                 district_name: true,
-                districtblockmap: {
+                districtblockmap_vandan: {
                     select: {
-                        block_vd: { select: { bolck_Id: true, block_name: true, Block_Type: true } },
+                        block_vd_vandan: { select: { bolck_Id: true, block_name: true, Block_Type: true } },
                     },
                 },
             },
@@ -44,19 +44,19 @@ export const getDistrictsByType = async (req, res) => {
 export const getDistrictMeta = async (req, res) => {
     try {
         const districtId = Number(req.params.id);
-        const district = await prisma.district.findUnique({
+        const district = await prisma.district_vandan.findUnique({
             where: { district_id: districtId },
             select: {
                 district_id: true,
                 district_name: true,
-                districtblockmap: {
-                    select: { block_vd: { select: { bolck_Id: true, block_name: true, Block_Type: true } } },
+                districtblockmap_vandan: {
+                    select: { block_vd_vandan: { select: { bolck_Id: true, block_name: true, Block_Type: true } } },
                 },
             },
         });
         if (!district)
             return res.status(404).json({ success: false, message: "Not found" });
-        const blocks = district.districtblockmap.map(m => m.block_vd);
+        const blocks = district.districtblockmap_vandan.map(m => m.block_vd_vandan);
         res.json({ success: true, data: { ...district, blocks } });
     }
     catch (e) {
@@ -68,7 +68,7 @@ export const getDistrictMeta = async (req, res) => {
 export const getBlockById = async (req, res) => {
     try {
         const blockId = Number(req.params.id);
-        const block = await prisma.block_vd.findUnique({
+        const block = await prisma.block_vd_vandan.findUnique({
             where: { bolck_Id: blockId },
             select: selectBlockC(),
         });
@@ -88,15 +88,15 @@ export const getCombinedBlockReport = async (req, res) => {
         if (!blockName || !districtId)
             return res.status(400).json({ success: false, message: "blockName & districtId required" });
         const clean = blockName.trim();
-        const blocks = await prisma.block_vd.findMany({
+        const blocks = await prisma.block_vd_vandan.findMany({
             where: {
                 block_name: { contains: clean }, // Case-insensitive search for better matching
                 Block_Type: { in: ["R", "U"] },
-                districtblockmap: { some: { districtId: Number(districtId) } },
+                districtblockmap_vandan: { some: { districtId: Number(districtId) } },
             },
             select: selectBlockC(),
         });
-        console.log("Combining blocks:", blocks.map(b => ({ name: b.block_name, type: b.Block_Type })));
+        // console.log("Combining blocks:", blocks.map(b => ({ name: b.block_name, type: b.Block_Type })));
         if (!blocks.length)
             return res.status(404).json({ success: false, message: "Block not found" });
         // Initialize combined object with zeros for all c fields
@@ -139,18 +139,18 @@ export const getDistrictCombinedReport = async (req, res) => {
         const blockFilter = type === "ALL"
             ? {}
             : {
-                block_vd: {
+                block_vd_vandan: {
                     Block_Type: type, // either 'R' or 'U'
                 },
             };
         // Query with optimized selection: only fetch necessary fields for block_vd to reduce payload
-        const districtData = await prisma.district.findUnique({
+        const districtData = await prisma.district_vandan.findUnique({
             where: { district_id: districtId },
             include: {
-                districtblockmap: {
+                districtblockmap_vandan: {
                     where: blockFilter,
                     include: {
-                        block_vd: {
+                        block_vd_vandan: {
                             select: {
                                 bolck_Id: true, // Include ID if needed for reference
                                 block_name: true, // Optional: if you need block names elsewhere
@@ -178,7 +178,7 @@ export const getDistrictCombinedReport = async (req, res) => {
                 .json({ success: false, message: "District not found" });
         }
         // Extract blocks
-        const blocks = districtData.districtblockmap.map((b) => b.block_vd);
+        const blocks = districtData.districtblockmap_vandan.map((b) => b.block_vd_vandan);
         // Predefine cFields for robustness (avoids error if no blocks; based on schema up to c84)
         const cFields = Array.from({ length: 84 }, (_, i) => `c${i + 1}`);
         // Build report data using reduce for efficient summation
@@ -217,7 +217,7 @@ export const updateWrapperWithCsv = async (req, res) => {
         const csvFile = req.files.csv;
         // Convert buffer → string
         const csv = csvFile.data.toString("utf-8");
-        console.log("Received CSV from frontend:\n", csv.slice(0, 200) + "...");
+        // console.log("Received CSV from frontend:\n", csv.slice(0, 200) + "...");
         // 1️⃣ Upload CSV data to Datawrapper
         const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
             headers: {
@@ -234,7 +234,7 @@ export const updateWrapperWithCsv = async (req, res) => {
         const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
             headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
         });
-        console.log("Publish response:", publishRes.status);
+        // console.log("Publish response:", publishRes.status);
         if (publishRes.status !== 200) {
             console.error("Error publishing chart:", publishRes.status, publishRes.data);
             throw new Error("Failed to publish chart");
@@ -254,14 +254,36 @@ export const updateWrapperWithCsv = async (req, res) => {
     }
 };
 export const updateWrapper = async (req, res) => {
-    // const data = [{"District":"Balod","Value":95},{"District":"Baloda Bazar","Value":100},{"District":"Balrampur","Value":98},{"District":"Bastar","Value":90},{"District":"Bemetara","Value":95},{"District":"Bijapur","Value":91},{"District":"Bilaspur","Value":90},{"District":"Dantewada","Value":92},{"District":"Dhamtari","Value":94},{"District":"Durg","Value":92},{"District":"Gariaband","Value":95},{"District":"Gaurela-Pendra-Marwahi","Value":99},{"District":"Janjgir-Champa","Value":90},{"District":"Jashpur","Value":99},{"District":"Kabirdham","Value":90},{"District":"Khairagarh-Chhuikhadan-Gandai","Value":91},{"District":"Kondagaon","Value":90},{"District":"Korba","Value":98},{"District":"Koriya","Value":94},{"District":"Mahasamund","Value":97},{"District":"Manendragarh-Chirimiri-Bharatpur","Value":91},{"District":"Mohla-Manpur-Ambagarh Chowki","Value":91},{"District":"Mungeli","Value":94},{"District":"Narayanpur","Value":92},{"District":"Raigarh","Value":93},{"District":"Raipur","Value":15},{"District":"Rajnandgaon","Value":91},{"District":"Sakti","Value":96},{"District":"Sarangarh-Bilaigarh","Value":90},{"District":"Sukma","Value":95},{"District":"Surajpur","Value":94},{"District":"Surguja","Value":91},{"District":"Uttar Bastar Kanker","Value":94}];
-    const data = await prisma.districtMap.findMany({});
     const DATAWRAPPER_API_TOKEN = process.env.DATAWRAPPER_API_TOKEN || "YOUR_NEW_TOKEN_HERE";
     const DATAWRAPPER_CHART_ID = process.env.DATAWRAPPER_CHART_ID || "YOUR_CHART_ID_HERE";
     try {
+        const { data } = req.body;
+        // console.log("data",data);
+        if (!data) {
+            return res.json({
+                message: "data not found"
+            });
+        }
+        if (data.length <= 0) {
+            return res.status(404).json({
+                succes: false,
+                message: "data not found"
+            });
+        }
+        for (const d of data) {
+            const updateRes = await prisma.district_map_data_vandan.updateMany({
+                where: { district_name: d.district },
+                data: {
+                    district_name: d.district,
+                    district_value: parseInt(d.value, 10),
+                },
+            });
+            // console.log(`Updated district ${d.district} with value ${d.value}`);
+            // console.log("count of update district map data  ",updateRes)
+        }
         // Convert to CSV
-        let csv = "District,Value\n" + data.map((d) => `${d.District},${d.Value}`).join("\n");
-        console.log("Generated CSV:\n", csv);
+        let csv = "District,Value\n" + data.map((d) => `${d.district},${d.value}`).join("\n");
+        // console.log("Generated CSV:\n", csv);
         // Upload new data
         const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
             headers: {
@@ -278,7 +300,7 @@ export const updateWrapper = async (req, res) => {
         const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
             headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
         });
-        console.log("Publish response:", publishRes.status);
+        // console.log("Publish response:", publishRes.status);
         if (publishRes.status !== 200) {
             console.error("Error publishing chart:", publishRes.status, publishRes.data);
             throw new Error("Failed to publish chart");
@@ -317,7 +339,7 @@ export const createDistrictMaps = async (req, res) => {
             district_name: d.District,
             district_value: d.Value,
         }));
-        const dbResult = await prisma.districtMap.createMany({
+        const dbResult = await prisma.district_map_data_vandan.createMany({
             data: prismaData,
         });
         if (dbResult.count === 0) {
@@ -333,7 +355,7 @@ export const createDistrictMaps = async (req, res) => {
                 'Content-Type': 'text/csv',
             },
         });
-        console.log('Datawrapper upload status:', updateRes.status);
+        // console.log('Datawrapper upload status:', updateRes.status);
         if (![200, 204].includes(updateRes.status)) {
             console.error('Upload failed:', updateRes.status, updateRes.data);
             throw new Error(`Failed to upload chart data: ${updateRes.status}`);
@@ -342,7 +364,7 @@ export const createDistrictMaps = async (req, res) => {
         const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
             headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
         });
-        console.log('Publish response:', publishRes.status);
+        // console.log('Publish response:', publishRes.status);
         if (publishRes.status !== 200) {
             console.error('Error publishing chart:', publishRes.status, publishRes.data);
             throw new Error(`Failed to publish chart: ${publishRes.status}`);
@@ -372,10 +394,10 @@ export const getDistrictMapData = async (req, res) => {
         if (!DATAWRAPPER_API_TOKEN || !DATAWRAPPER_CHART_ID) {
             throw new Error('Missing required environment variables: DATAWRAPPER_API_TOKEN or DATAWRAPPER_CHART_ID');
         }
-        const data = await prisma.districtMap.findMany({});
+        const data = await prisma.district_map_data_vandan.findMany({});
         // Generate CSV from input data (matches structure)
         const csv = 'District,Value\n' + data.map((d) => `${d.district_name},${d.district_value}`).join('\n');
-        console.log('Generated CSV:\n', csv);
+        // console.log('Generated CSV:\n', csv);
         // Upload new data
         const updateRes = await axios.put(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/data`, csv, {
             headers: {
@@ -383,7 +405,7 @@ export const getDistrictMapData = async (req, res) => {
                 'Content-Type': 'text/csv',
             },
         });
-        console.log('Datawrapper upload status:', updateRes.status);
+        // console.log('Datawrapper upload status:', updateRes.status);
         if (![200, 204].includes(updateRes.status)) {
             console.error('Upload failed:', updateRes.status, updateRes.data);
             throw new Error(`Failed to upload chart data: ${updateRes.status}`);
@@ -392,7 +414,7 @@ export const getDistrictMapData = async (req, res) => {
         const publishRes = await axios.post(`https://api.datawrapper.de/v3/charts/${DATAWRAPPER_CHART_ID}/publish`, {}, {
             headers: { Authorization: `Bearer ${DATAWRAPPER_API_TOKEN}` },
         });
-        console.log('Publish response:', publishRes.status);
+        // console.log('Publish response:', publishRes.status);
         if (publishRes.status !== 200) {
             console.error('Error publishing chart:', publishRes.status, publishRes.data);
             throw new Error(`Failed to publish chart: ${publishRes.status}`);

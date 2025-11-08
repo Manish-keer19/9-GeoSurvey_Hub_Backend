@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getAllDistricts, getDistrictsByType, 
 //   getDistrictWithBlocks,  
-getDistrictMeta, getBlockById, getCombinedBlockReport, getDistrictCombinedReport, createDistrictMaps, getDistrictMapData, } from "../controller/user.controller.js";
+getDistrictMeta, getBlockById, getCombinedBlockReport, getDistrictCombinedReport, updateWrapper, createDistrictMaps, getDistrictMapData, } from "../controller/user.controller.js";
 import { isAuthenticated } from "../middleware/auth.js";
 export const discrictRoute = Router();
 discrictRoute.get("/", isAuthenticated, getAllDistricts);
@@ -13,7 +13,6 @@ discrictRoute.get("/:id/report", isAuthenticated, getDistrictCombinedReport); //
 // routes/block.routes.ts
 discrictRoute.post("/combined-by-name", getCombinedBlockReport);
 discrictRoute.get("/get-districts", getAllDistricts);
-// discrictRoute.put("/update-wrapper-with-csv",updateWrapperWithCsv);
-// discrictRoute.get("/update-wrapper",updateWrapper);
+discrictRoute.post("/update-district-map", updateWrapper);
 discrictRoute.post("/create-district-map", createDistrictMaps);
 discrictRoute.get("/get-district-map-data", getDistrictMapData);

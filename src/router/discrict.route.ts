@@ -29,7 +29,6 @@ discrictRoute.get("/:id/report", isAuthenticated,getDistrictCombinedReport); // 
 discrictRoute.post("/combined-by-name", getCombinedBlockReport);
 
 discrictRoute.get("/get-districts",getAllDistricts);
-// discrictRoute.put("/update-wrapper-with-csv",updateWrapperWithCsv);
-// discrictRoute.get("/update-wrapper",updateWrapper);
+discrictRoute.post("/update-district-map",updateWrapper);
 discrictRoute.post("/create-district-map",createDistrictMaps);
 discrictRoute.get("/get-district-map-data",getDistrictMapData);

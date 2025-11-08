@@ -7,149 +7,438 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model block_vd {
-  bolck_Id         Int                 @id
-  Block_Type       block_vd_Block_Type
-  block_name       String
-  c1               Float?
-  c2               Float?
-  c3               Float?
-  c4               Float?
-  c5               Float?
-  c6               Float?
-  c7               Float?
-  c8               Float?
-  c9               Float?
-  c10              Float?
-  c11              Float?
-  c12              Float?
-  c13              Float?
-  c14              Float?
-  c15              Float?
-  c16              Float?
-  c17              Float?
-  c18              Float?
-  c19              Float?
-  c20              Float?
-  c21              Float?
-  c22              Float?
-  c23              Float?
-  c24              Float?
-  c25              Float?
-  c26              Float?
-  c27              Float?
-  c28              Float?
-  c29              Float?
-  c30              Float?
-  c31              Float?
-  c32              Float?
-  c33              Float?
-  c34              Float?
-  c35              Float?
-  c36              Float?
-  c37              Float?
-  c38              Float?
-  c39              Float?
-  c40              Float?
-  c41              Float?
-  c42              Float?
-  c43              Float?
-  c44              Float?
-  c45              Float?
-  c46              Float?
-  c47              Float?
-  c48              Float?
-  c49              Float?
-  c50              Float?
-  c51              Float?
-  c52              Float?
-  c53              Float?
-  c54              Float?
-  c55              Float?
-  c56              Float?
-  c57              Float?
-  c58              Float?
-  c59              Float?
-  c60              Float?
-  c61              Float?
-  c62              Float?
-  c63              Float?
-  c64              Float?
-  c65              Float?
-  c66              Float?
-  c67              Float?
-  c68              Float?
-  c69              Float?
-  c70              Float?
-  c71              Float?
-  c72              Float?
-  c73              Float?
-  c74              Float?
-  c75              Float?
-  c76              Float?
-  c77              Float?
-  c78              Float?
-  c79              Float?
-  c80              Float?
-  c81              Float?
-  c82              Float?
-  c83              Float?
-  c84              Float?
-  districtblockmap districtblockmap[]
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Jila_Adhyaksh {
+  null      String? @map("ï»¿null") @db.Text
+  Admin     String? @db.Text
+  Admin__0_ String? @map("Admin_[0]") @db.Text
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 9074800008 BigInt? @map("9074800008")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 1122 Int? @map("1122")
+  @@ignore
 }
 
-model district {
-  district_id      Int                @id
-  district_name    String
-  districtblockmap districtblockmap[]
+model activation_code_config {
+  id              Int      @id @default(autoincrement())
+  activation_code String   @db.VarChar(7)
+  exp_days        BigInt
+  app_code_id     Int?
+  created_at      DateTime @default(now()) @db.DateTime(0)
+  updated_at      DateTime @default(now()) @db.DateTime(0)
 }
 
-model districtblockmap {
-  id         Int      @id @default(autoincrement())
-  districtId Int
-  blockId    Int
-  block_vd   block_vd @relation(fields: [blockId], references: [bolck_Id], onDelete: Cascade, map: "DistrictBlockMap_blockId_fkey")
-  district   district @relation(fields: [districtId], references: [district_id], onDelete: Cascade, map: "DistrictBlockMap_districtId_fkey")
+model app_config {
+  id                             Int    @id @default(autoincrement())
+  app_code                       String @db.VarChar(10)
+  splashbackground_image_url     String @db.VarChar(200)
+  splashbackground_color_code    String @db.VarChar(20)
+  base_url                       String @db.VarChar(200)
+  base_database_name             String @db.VarChar(100)
+  voter_database_name            String @db.VarChar(100)
+  voter_table_name               String @db.VarChar(20)
+  default_app_ui_language_id     Int    @default(1)
+  default_app_search_language_id Int    @default(1)
+  default_app_pdf_language_id    Int    @default(1)
+  app_pdf_font                   String @db.VarChar(100)
+  assembly_no                    String @db.VarChar(20)
+  base_url_img_video             String @db.VarChar(200)
+  default_user_type_id           Int
+  default_booth_from             Int
+  default_booth_to               Int
+  election_name                  String @db.VarChar(200)
+  assembly_name                  String @db.VarChar(200)
+  candidate_name                 String @db.VarChar(200)
+  party_name                     String @db.VarChar(200)
+  USER_IMAGE_URL                 String @db.VarChar(200)
+
+  @@index([app_code], map: "app_code")
+}
+
+model block_vd_vandan {
+  bolck_Id                Int                        @id
+  Block_Type              block_vd_vandan_Block_Type
+  block_name              String
+  c1                      Float?
+  c2                      Float?
+  c3                      Float?
+  c4                      Float?
+  c5                      Float?
+  c6                      Float?
+  c7                      Float?
+  c8                      Float?
+  c9                      Float?
+  c10                     Float?
+  c11                     Float?
+  c12                     Float?
+  c13                     Float?
+  c14                     Float?
+  c15                     Float?
+  c16                     Float?
+  c17                     Float?
+  c18                     Float?
+  c19                     Float?
+  c20                     Float?
+  c21                     Float?
+  c22                     Float?
+  c23                     Float?
+  c24                     Float?
+  c25                     Float?
+  c26                     Float?
+  c27                     Float?
+  c28                     Float?
+  c29                     Float?
+  c30                     Float?
+  c31                     Float?
+  c32                     Float?
+  c33                     Float?
+  c34                     Float?
+  c35                     Float?
+  c36                     Float?
+  c37                     Float?
+  c38                     Float?
+  c39                     Float?
+  c40                     Float?
+  c41                     Float?
+  c42                     Float?
+  c43                     Float?
+  c44                     Float?
+  c45                     Float?
+  c46                     Float?
+  c47                     Float?
+  c48                     Float?
+  c49                     Float?
+  c50                     Float?
+  c51                     Float?
+  c52                     Float?
+  c53                     Float?
+  c54                     Float?
+  c55                     Float?
+  c56                     Float?
+  c57                     Float?
+  c58                     Float?
+  c59                     Float?
+  c60                     Float?
+  c61                     Float?
+  c62                     Float?
+  c63                     Float?
+  c64                     Float?
+  c65                     Float?
+  c66                     Float?
+  c67                     Float?
+  c68                     Float?
+  c69                     Float?
+  c70                     Float?
+  c71                     Float?
+  c72                     Float?
+  c73                     Float?
+  c74                     Float?
+  c75                     Float?
+  c76                     Float?
+  c77                     Float?
+  c78                     Float?
+  c79                     Float?
+  c80                     Float?
+  c81                     Float?
+  c82                     Float?
+  c83                     Float?
+  c84                     Float?
+  districtblockmap_vandan districtblockmap_vandan[]
+}
+
+model district_map_data_vandan {
+  id             Int    @id @default(autoincrement())
+  district_id    Int
+  district_name  String
+  district_value Int
+}
+
+model district_vandan {
+  district_id             Int                       @id
+  district_name           String
+  districtblockmap_vandan districtblockmap_vandan[]
+}
+
+model districtblockmap_vandan {
+  id              Int             @id @default(autoincrement())
+  districtId      Int
+  blockId         Int
+  block_vd_vandan block_vd_vandan @relation(fields: [blockId], references: [bolck_Id], onDelete: Cascade, map: "DistrictBlockMap_blockId_fkey")
+  district_vandan district_vandan @relation(fields: [districtId], references: [district_id], onDelete: Cascade, map: "DistrictBlockMap_districtId_fkey")
 
   @@unique([districtId, blockId], map: "Unique_District_Block")
   @@index([blockId], map: "DistrictBlockMap_blockId_idx")
   @@index([districtId], map: "DistrictBlockMap_districtId_idx")
 }
 
-model user {
-  id   Int       @id @default(autoincrement())
-  code String    @unique(map: "User_code_key") @db.VarChar(255)
+model event_updates {
+  id               Int       @id @default(autoincrement())
+  event_id         Int?
+  user_id          Int?
+  name             String?   @db.VarChar(250)
+  description      String?   @db.Text
+  start_date_time  DateTime? @db.DateTime(0)
+  end_date_time    DateTime? @db.DateTime(0)
+  issue_date       DateTime? @db.Date
+  location         String?   @db.VarChar(250)
+  attendees        Int?
+  update_date      DateTime? @db.Date
+  photos           String?   @db.Text
+  video            String?   @db.VarChar(250)
+  pdf              String?   @db.VarChar(255)
+  media_photos     String?   @db.Text
+  type             String?   @db.VarChar(50)
+  media_video_urls String?   @db.VarChar(500)
+  media_other_urls String?   @db.Text
+  events           events?   @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_updates_ibfk_1")
+  users_ev         users_ev? @relation(fields: [user_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "event_updates_ibfk_2")
+
+  @@index([event_id], map: "event_id")
+  @@index([user_id], map: "user_id")
+}
+
+model event_users {
+  event_id Int
+  user_id  Int
+  events   events   @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_users_ibfk_1")
+  users_ev users_ev @relation(fields: [user_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "event_users_ibfk_2")
+
+  @@id([event_id, user_id])
+  @@index([user_id], map: "user_id")
+}
+
+model event_views {
+  event_id       Int
+  user_id        Int
+  view_date_time DateTime? @db.DateTime(0)
+  events         events    @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "event_views_ibfk_1")
+  users_ev       users_ev  @relation(fields: [user_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "event_views_ibfk_2")
+
+  @@id([event_id, user_id])
+  @@index([user_id], map: "user_id")
+}
+
+model events {
+  id              Int             @id @default(autoincrement())
+  name            String          @db.VarChar(250)
+  description     String?         @db.Text
+  start_date_time DateTime        @db.DateTime(0)
+  end_date_time   DateTime        @db.DateTime(0)
+  issue_date      DateTime?       @db.Date
+  location        String?         @db.VarChar(250)
+  level           String?         @db.VarChar(50)
+  type            String?         @db.VarChar(50)
+  status          String?         @db.VarChar(20)
+  photos          String?         @db.LongText
+  video           String?         @db.Text
+  pdf             String?         @db.VarChar(255)
+  event_updates   event_updates[]
+  event_users     event_users[]
+  event_views     event_views[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mp16 {
+  id                BigInt           @id @default(autoincrement())
+  sno               String           @db.VarChar(20)
+  vid               String           @db.VarChar(50)
+  vname             String           @db.VarChar(150)
+  vname_eng         String           @db.VarChar(50)
+  age               Int              @db.MediumInt
+  gender            String           @db.VarChar(2)
+  relation          String           @db.VarChar(2)
+  relative_name     String           @db.VarChar(150)
+  relative_name_eng String           @db.VarChar(50)
+  house_no          String           @db.VarChar(100)
+  members           Int              @db.MediumInt
+  head              String           @db.VarChar(150)
+  classes           Int              @default(0)
+  part_no           Int              @default(0)
+  ward_no           Int              @default(0)
+  dob               String           @db.VarChar(20)
+  mobile            String           @db.VarChar(13)
+  email             String           @db.VarChar(100)
+  transferred       mp16_transferred @default(dbgenerated("0"))
+  study             String           @db.VarChar(200)
+  job               String           @db.VarChar(50)
+  cast              String           @db.VarChar(200)
+  dead              mp16_dead        @default(dbgenerated("0"))
+  color             Int              @default(0) @db.TinyInt
+  assembly_no       Int              @default(0)
+  section_no        Int              @default(0)
+  voted             Int              @default(0)
+  survey_done       mp16_survey_done @default(dbgenerated("0"))
+  surname           String           @db.VarChar(100)
+  status            String           @default("ND") @db.VarChar(2)
+  is_deleted        Int              @default(0) @db.TinyInt
+  vname_uni         String           @db.VarChar(200)
+  relative_name_uni String           @db.VarChar(200)
+  head_uni          String           @db.VarChar(200)
+  house_no_uni      String           @db.VarChar(100)
+  caste_uni         String           @db.VarChar(200)
+  surname_uni       String           @db.VarChar(150)
+
+  @@index([classes], map: "classes")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mp85 {
+  id                BigInt           @id @default(autoincrement())
+  sno               String           @db.VarChar(20)
+  vid               String           @db.VarChar(50)
+  vname             String           @db.VarChar(150)
+  vname_eng         String           @db.VarChar(50)
+  age               Int              @db.MediumInt
+  gender            String           @db.VarChar(2)
+  relation          String           @db.VarChar(2)
+  relative_name     String           @db.VarChar(150)
+  relative_name_eng String           @db.VarChar(50)
+  house_no          String           @db.VarChar(100)
+  members           Int              @db.MediumInt
+  head              String           @db.VarChar(150)
+  classes           Int              @default(0)
+  part_no           Int              @default(0)
+  ward_no           Int              @default(0)
+  dob               String           @db.VarChar(20)
+  mobile            String           @db.VarChar(13)
+  email             String           @db.VarChar(100)
+  transferred       mp85_transferred @default(dbgenerated("0"))
+  study             String           @db.VarChar(200)
+  job               String           @db.VarChar(50)
+  cast              String           @db.VarChar(200)
+  dead              mp85_dead        @default(dbgenerated("0"))
+  color             Int              @default(0) @db.TinyInt
+  assembly_no       Int              @default(0)
+  section_no        Int              @default(0)
+  voted             Int              @default(0)
+  survey_done       mp85_survey_done @default(dbgenerated("0"))
+  surname           String           @db.VarChar(100)
+  status            String           @default("ND") @db.VarChar(2)
+  is_deleted        Int              @default(0) @db.TinyInt
+  vname_uni         String           @db.VarChar(200)
+  relative_name_uni String           @db.VarChar(200)
+  head_uni          String           @db.VarChar(200)
+  house_no_uni      String           @db.VarChar(100)
+
+  @@index([classes], map: "classes")
+}
+
+model user_vandan {
+  id   Int              @id @default(autoincrement())
+  code String           @unique(map: "User_code_key") @db.VarChar(255)
   name String
-  role user_role @default(DISTRICT_USER)
+  role user_vandan_role @default(DISTRICT_USER)
 }
 
-model User {
-  id   Int       @id @default(autoincrement())
-  code String    @unique @db.VarChar(255)
-  name String
-  role User_role @default(DISTRICT_USER)
-}
-model districtMap{
-  id   Int   @id @default(autoincrement())
-  district_id  Int
-  district_name  String
-  district_value Int
+model user_visits {
+  id              Int       @id @default(autoincrement())
+  user_id         Int?
+  visit_date_time DateTime? @db.DateTime(0)
+  month           String?   @db.VarChar(7)
+  users_ev        users_ev? @relation(fields: [user_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "user_visits_ibfk_1")
+
+  @@index([user_id], map: "user_id")
 }
 
+model users {
+  user_id       Int       @id @default(autoincrement())
+  full_name     String    @db.VarChar(255)
+  mobile        BigInt
+  act_code      String?   @db.VarChar(255)
+  is_active     Int       @default(1) @db.TinyInt
+  created_at    DateTime  @default(now()) @db.DateTime(6)
+  updated_at    DateTime  @default(now()) @db.DateTime(6)
+  act_expire_by DateTime? @db.Timestamp(0)
+  lastFetch     String    @db.VarChar(255)
+}
 
-enum block_vd_Block_Type {
+model usersData {
+  id               Int     @id @default(autoincrement())
+  sr_no            String? @db.VarChar(255)
+  name             String? @db.VarChar(255)
+  relation_type    String? @db.VarChar(255)
+  relative_name    String? @db.VarChar(255)
+  house_number     String? @db.VarChar(255)
+  gender           String? @db.VarChar(255)
+  age              Int?
+  voter_id         String? @db.VarChar(255)
+  section_no       Int?
+  did              String? @db.VarChar(255)
+  nid              String? @db.VarChar(255)
+  wid              String? @db.VarChar(255)
+  part_id          Int?
+  section_id       Int?
+  section_eng      String? @db.VarChar(255)
+  section_hin      String? @db.VarChar(255)
+  address          String? @db.VarChar(255)
+  ward_eng         String? @db.VarChar(255)
+  ward_hin         String? @db.VarChar(255)
+  nikay_eng        String? @db.VarChar(255)
+  nikay_hin        String? @db.VarChar(255)
+  NP_ID            String? @db.VarChar(255)
+  Election_Flag    Int?    @default(0) @db.TinyInt
+  district_eng     String? @db.VarChar(255)
+  district_hin     String? @db.VarChar(255)
+  part_no          Int?
+  deleted          Int?    @default(0) @db.TinyInt
+  en_name          String? @db.VarChar(255)
+  en_relative_name String? @db.VarChar(255)
+  ward_no          String? @db.VarChar(255)
+
+  @@index([did, nid, wid], map: "IDX_1ff1988c33a25fe5dd04a6c873")
+}
+
+model users_ev {
+  ID            Int             @id @default(autoincrement())
+  User_Name     String          @db.VarChar(250)
+  Designation   String?         @db.VarChar(250)
+  Pin           String?         @db.VarChar(10)
+  MobileNumber  String?         @db.VarChar(15)
+  event_updates event_updates[]
+  event_users   event_users[]
+  event_views   event_views[]
+  user_visits   user_visits[]
+}
+
+enum block_vd_vandan_Block_Type {
   R
   U
 }
 
-enum user_role {
+enum user_vandan_role {
   DISTRICT_USER
   VIDHANSABHA_USER
   ADMIN
 }
 
-enum User_role {
-  DISTRICT_USER
-  VIDHANSABHA_USER
-  ADMIN
+
+enum mp16_transferred {
+  ZERO @map("0")
+  ONE  @map("1")
+}
+
+enum mp85_transferred {
+  ZERO @map("0")
+  ONE  @map("1")
+}
+
+enum mp16_dead {
+  ZERO @map("0")
+  ONE  @map("1")
+}
+
+enum mp85_dead {
+  ZERO @map("0")
+  ONE  @map("1")
+}
+
+enum mp16_survey_done {
+  ZERO @map("0")
+  ONE  @map("1")
+}
+
+enum mp85_survey_done {
+  ZERO @map("0")
+  ONE  @map("1")
 }

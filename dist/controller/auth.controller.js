@@ -12,13 +12,13 @@ export const registerUser = async (req, res) => {
         if (!validRoles.includes(role)) {
             return res.status(400).json({ success: false, message: "Invalid role" });
         }
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.user_vandan.findUnique({
             where: { code },
         });
         if (existingUser) {
             return res.status(400).json({ success: false, message: "User with this code already exists" });
         }
-        const newUser = await prisma.user.create({
+        const newUser = await prisma.user_vandan.create({
             data: {
                 name,
                 code,
@@ -38,13 +38,13 @@ export const registerAdmin = async (req, res) => {
         if (!code) {
             return res.status(400).json({ success: false, message: 'code is required' });
         }
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.user_vandan.findUnique({
             where: { code: code }
         });
         if (existingUser) {
             return res.status(400).json({ success: false, message: 'User with this code already exists' });
         }
-        const newUser = await prisma.user.create({
+        const newUser = await prisma.user_vandan.create({
             data: { code: code, name: name || "Admin", role: "ADMIN" }
         });
         res.status(201).json({ success: true, message: 'Admin registered successfully', data: { user: newUser } });
@@ -61,7 +61,7 @@ export const login = async (req, res) => {
         if (!code || code.length !== 4 || !role) {
             return res.status(400).json({ success: false, message: 'All fileds are required' });
         }
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user_vandan.findUnique({
             where: { code, role: role },
         });
         if (!user) {
@@ -94,7 +94,7 @@ export const login = async (req, res) => {
 };
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
+        const users = await prisma.user_vandan.findMany({
             select: {
                 id: true,
                 name: true,
